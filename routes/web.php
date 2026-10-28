@@ -71,7 +71,7 @@ Route::prefix('cashier')->middleware(['auth', 'verified','role:cashier'])->contr
 
     Route::post('/pos/complete-sale', [SaleController::class, 'store'])->name('pos.sale');
     
-    Route::get('/pos/invoice/{id}', [PosController::class, 'invoice'])->name('cashier.sale');
+    Route::get('/pos/invoice/{id}', [PosController::class, 'invoice'])->name('cashier.invoice');
     Route::get('/pos/lookup/{barcode}', [POSController::class, 'lookup']);
 });
 Route::get('/barcode/{code}', function ($code) {

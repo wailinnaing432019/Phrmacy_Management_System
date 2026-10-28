@@ -152,7 +152,7 @@ export const columns: ColumnDef<Sale>[] = [
                         <DropdownMenuSeparator />
 
                         <DropdownMenuItem asChild>
-                            <a href={route('cashier.sale', sale.id)} target="_blank" className="flex items-center">
+                            <a href={route('cashier.sale.show', sale.id)} target="_blank" className="flex items-center">
                                 <Eye className="mr-2 h-4 w-4" /> See Detail & Print
                             </a>
                         </DropdownMenuItem>

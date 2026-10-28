@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import CustomerLayout from '../../Layouts/CustomerLayout';
+import CustomerLayout from '@/layouts/customer-layout';
 
 export default function Home({ medicines }) {
     const [cart, setCart] = useState<number[]>([]);

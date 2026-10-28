@@ -1,4 +1,4 @@
-import CustomerLayout from '../../Layouts/CustomerLayout';
+import CustomerLayout from '@/layouts/customer-layout';
 
 // For demo, use same products as Home
 const likedProducts = [

@@ -36,7 +36,6 @@ import {
     DialogTrigger,
     DialogDescription,
 } from "@/components/ui/dialog"
-import { RiLockPasswordLine } from "react-icons/ri"
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai"
 import InputError from "@/components/input-error"
 import { roleTextMap } from "@/utils/userRole"
@@ -50,11 +49,8 @@ interface User {
 
 export default function Index() {
     const { users, filters } = usePage().props as any
-    const { flash, errors } = usePage().props
 
     const [sorting, setSorting] = useState<SortingState>([])
-    const [deletingUser, setDeletingUser] = useState<User | null>(null)
-
 
     // Columns definition
     const columns: ColumnDef<User>[] = [
@@ -80,189 +76,7 @@ export default function Index() {
         {
             id: "actions",
             header: "Actions",
-            cell: ({ row }) => {
-                const user = row.original
-                const [editingUser, setEditingUser] = useState<User | null>(null)
-
-                const [editName, setEditName] = useState("")
-                const [editEmail, setEditEmail] = useState("")
-                const [editRole, setEditRole] = useState("user")
-                const [editPassword, setPassword] = useState("")
-                const [showPassword, setShowPassword] = useState(false)
-                return (
-                    <div className="flex gap-2">
-                        {/* Edit Dialog */}
-                        <Dialog
-                            open={editingUser?.id === user.id}
-                            onOpenChange={(open) => {
-                                if (!open) setEditingUser(null)
-                            }}
-                        >
-                            <DialogTrigger asChild>
-                                <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => {
-                                        setEditingUser(user)
-                                        setEditName(user.name)
-                                        setEditEmail(user.email)
-                                        setEditRole(user.role)
-                                    }}
-                                >
-                                    Edit
-                                </Button>
-                            </DialogTrigger>
-                            <DialogContent className="max-w-md">
-                                <DialogHeader>
-                                    <DialogTitle>Edit User</DialogTitle>
-                                </DialogHeader>
-                                <div className="space-y-4">
-                                    <div>
-                                        <label className="block text-sm font-medium mb-1">
-                                            Name
-                                        </label>
-                                        <Input
-                                            value={editName}
-                                            onChange={(e) =>
-                                                setEditName(e.target.value)
-                                            }
-                                        />
-                                        <InputError
-                                            message={errors.name}
-                                            className="mt-2" />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium mb-1">
-                                            Email
-                                        </label>
-                                        <Input
-                                            value={editEmail}
-                                            onChange={(e) =>
-                                                setEditEmail(e.target.value)
-                                            }
-                                        />
-                                        <InputError
-                                            message={errors.email}
-                                            className="mt-2" />
-                                    </div>
-                                    {/* <div>
-                                        <div className="relative">
-                                            <RiLockPasswordLine className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                                            <input
-                                                type={showPassword ? "text" : "password"}
-                                                value={editPassword}
-                                                onChange={(e) => setPassword(e.target.value)}
-                                                placeholder="Enter your password"
-                                                className={`w-full pl-10 pr-12 py-3 border ${errors.password ? 'border-destructive' : 'border-border'} rounded-lg focus:outline-none focus:ring-2 focus:ring-ring bg-secondary transition-all duration-300`}
-                                            />
-                                            <button
-                                                type="button"
-                                                onClick={() => setShowPassword(!showPassword)}
-                                                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                                            >
-                                                {showPassword ? <AiOutlineEyeInvisible size={20} /> : <AiOutlineEye size={20} />}
-                                            </button>
-                                        </div>
-                                        {errors.password && <p className="mt-2 text-sm text-destructive">{errors.password}</p>}
-                                    </div> */}
-
-                                    <div>
-                                        <label className="block text-sm font-medium mb-1">
-                                            Role
-                                        </label>
-                                        <Select
-                                            value={editRole}
-                                            onValueChange={setEditRole}
-                                        >
-                                            <SelectTrigger className="w-full">
-                                                <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="user">Customers</SelectItem>
-                                                <SelectItem value="admin">Admin</SelectItem>
-                                                <SelectItem value="cashier">Cashier</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                        <InputError
-                                            message={errors.role}
-                                            className="mt-2" />
-                                    </div>
-                                    <div className="flex justify-end gap-2 mt-4">
-                                        <Button
-                                            onClick={() => setEditingUser(null)}
-                                        >
-                                            Cancel
-                                        </Button>
-                                        <Button
-                                            onClick={() => {
-                                                router.put(
-                                                    route("users.update", user.id),
-                                                    {
-                                                        name: editName,
-                                                        email: editEmail,
-                                                        role: editRole,
-                                                        password: editPassword,
-                                                    },
-                                                    { preserveState: true }
-                                                )
-                                                setEditingUser(null)
-                                            }}
-                                        >
-                                            Save
-                                        </Button>
-                                    </div>
-                                </div>
-                            </DialogContent>
-                        </Dialog>
-
-                        {/* Delete Dialog */}
-                        {!row.original.role || row.original.role == 'user' && (
-                            <Dialog
-                                open={deletingUser?.id === user.id}
-                                onOpenChange={(open) => {
-                                    if (!open) setDeletingUser(null)
-                                }}
-                            >
-                                <DialogTrigger asChild>
-                                    <Button
-                                        size="sm"
-                                        variant="destructive"
-                                        onClick={() => setDeletingUser(user)}
-                                    >
-                                        Delete
-                                    </Button>
-                                </DialogTrigger>
-                                <DialogContent className="max-w-sm">
-                                    <DialogHeader>
-                                        <DialogTitle>Delete User</DialogTitle>
-                                        <DialogDescription>
-                                            Are you sure you want to delete{" "}
-                                            <strong>{user.name}</strong>?
-                                        </DialogDescription>
-                                    </DialogHeader>
-                                    <div className="flex justify-end gap-2 mt-4">
-                                        <Button onClick={() => setDeletingUser(null)}>
-                                            Cancel
-                                        </Button>
-                                        <Button
-                                            variant="destructive"
-                                            onClick={() => {
-                                                router.delete(
-                                                    route("users.destroy", user.id),
-                                                    { preserveState: true }
-                                                )
-                                                setDeletingUser(null)
-                                            }}
-                                        >
-                                            Delete
-                                        </Button>
-                                    </div>
-                                </DialogContent>
-                            </Dialog>
-                        )}
-                    </div>
-                )
-            },
+            cell: ({ row }) => <UserActions user={row.original} />,
         },
     ]
 
@@ -400,5 +214,204 @@ export default function Index() {
                 </Button>
             </div>
         </AppLayout>
+    )
+}
+
+function UserActions({ user }: { user: User }) {
+    const { errors } = usePage().props as any
+
+    const [editOpen, setEditOpen] = useState(false)
+    const [deleteOpen, setDeleteOpen] = useState(false)
+    const [processing, setProcessing] = useState(false)
+
+    const [editName, setEditName] = useState(user.name)
+    const [editEmail, setEditEmail] = useState(user.email)
+    const [editRole, setEditRole] = useState(user.role)
+    const [editPassword, setEditPassword] = useState("")
+    const [showPassword, setShowPassword] = useState(false)
+
+    const openEdit = () => {
+        setEditName(user.name)
+        setEditEmail(user.email)
+        setEditRole(user.role)
+        setEditPassword("")
+        setShowPassword(false)
+        setEditOpen(true)
+    }
+
+    const submitEdit = () => {
+        router.put(
+            route("users.update", user.id),
+            {
+                name: editName,
+                email: editEmail,
+                role: editRole,
+                password: editPassword,
+            },
+            {
+                preserveScroll: true,
+                preserveState: true,
+                onStart: () => setProcessing(true),
+                onFinish: () => setProcessing(false),
+                // Only close on success so validation errors stay visible.
+                onSuccess: () => setEditOpen(false),
+            }
+        )
+    }
+
+    const submitDelete = () => {
+        router.delete(route("users.destroy", user.id), {
+            preserveScroll: true,
+            preserveState: true,
+            onStart: () => setProcessing(true),
+            onFinish: () => setProcessing(false),
+            onSuccess: () => setDeleteOpen(false),
+        })
+    }
+
+    return (
+        <div className="flex gap-2">
+            {/* Edit Dialog */}
+            <Dialog open={editOpen} onOpenChange={setEditOpen}>
+                <DialogTrigger asChild>
+                    <Button size="sm" variant="outline" onClick={openEdit}>
+                        Edit
+                    </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-md">
+                    <DialogHeader>
+                        <DialogTitle>Edit User</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                        <div>
+                            <label className="block text-sm font-medium mb-1">
+                                Name
+                            </label>
+                            <Input
+                                value={editName}
+                                onChange={(e) => setEditName(e.target.value)}
+                            />
+                            <InputError message={errors.name} className="mt-2" />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium mb-1">
+                                Email
+                            </label>
+                            <Input
+                                value={editEmail}
+                                onChange={(e) => setEditEmail(e.target.value)}
+                            />
+                            <InputError message={errors.email} className="mt-2" />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium mb-1">
+                                Role
+                            </label>
+                            <Select value={editRole} onValueChange={setEditRole}>
+                                <SelectTrigger className="w-full">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="user">Customers</SelectItem>
+                                    <SelectItem value="admin">Admin</SelectItem>
+                                    <SelectItem value="cashier">Cashier</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            <InputError message={errors.role} className="mt-2" />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium mb-1">
+                                Password{" "}
+                                <span className="text-xs text-muted-foreground">
+                                    (leave blank to keep current)
+                                </span>
+                            </label>
+                            <div className="relative">
+                                <Input
+                                    type={showPassword ? "text" : "password"}
+                                    value={editPassword}
+                                    onChange={(e) =>
+                                        setEditPassword(e.target.value)
+                                    }
+                                    placeholder="Enter new password"
+                                    className="pr-10"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                                    aria-label={
+                                        showPassword
+                                            ? "Hide password"
+                                            : "Show password"
+                                    }
+                                >
+                                    {showPassword ? (
+                                        <AiOutlineEyeInvisible size={20} />
+                                    ) : (
+                                        <AiOutlineEye size={20} />
+                                    )}
+                                </button>
+                            </div>
+                            <InputError
+                                message={errors.password}
+                                className="mt-2"
+                            />
+                        </div>
+
+                        <div className="flex justify-end gap-2 mt-4">
+                            <Button
+                                variant="outline"
+                                onClick={() => setEditOpen(false)}
+                                disabled={processing}
+                            >
+                                Cancel
+                            </Button>
+                            <Button onClick={submitEdit} disabled={processing}>
+                                {processing ? "Saving..." : "Save"}
+                            </Button>
+                        </div>
+                    </div>
+                </DialogContent>
+            </Dialog>
+
+            {/* Delete Dialog */}
+            {(!user.role || user.role === "user") && (
+                <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+                    <DialogTrigger asChild>
+                        <Button size="sm" variant="destructive">
+                            Delete
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-sm">
+                        <DialogHeader>
+                            <DialogTitle>Delete User</DialogTitle>
+                            <DialogDescription>
+                                Are you sure you want to delete{" "}
+                                <strong>{user.name}</strong>?
+                            </DialogDescription>
+                        </DialogHeader>
+                        <div className="flex justify-end gap-2 mt-4">
+                            <Button
+                                variant="outline"
+                                onClick={() => setDeleteOpen(false)}
+                                disabled={processing}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                variant="destructive"
+                                onClick={submitDelete}
+                                disabled={processing}
+                            >
+                                Delete
+                            </Button>
+                        </div>
+                    </DialogContent>
+                </Dialog>
+            )}
+        </div>
     )
 }

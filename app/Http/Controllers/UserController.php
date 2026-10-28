@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
@@ -80,7 +82,7 @@ public function update(Request $request, $id)
     $request->validate([
         'name' => 'required|string|max:255',
         'email' => 'required|email|max:255|unique:users,email,' . $user->id,
-        'role' => 'required|string|in:user,admin,cahier',
+        'role' => ['required', 'string', Rule::in(['admin', 'cashier', 'user'])],
         'password' => 'nullable|string|min:6', // optional password
     ]);
 
@@ -92,13 +94,19 @@ public function update(Request $request, $id)
     }
 
     $user->save();
-    // for logout
-    if ($request->filled('password') && $user->role === 'admin') {
+
+    // If the admin edited their own account and changed the password or lost
+    // the admin role, end the session so the change takes effect immediately.
+    $editedSelf = $request->user()->id === $user->id;
+
+    if ($editedSelf && ($request->filled('password') || $user->role !== 'admin')) {
+        Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
         return redirect('/');
     }
+
     return redirect()->back()->with('success', 'User updated successfully.');
 }
 

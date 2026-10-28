@@ -1,4 +1,4 @@
-import CustomerLayout from '../../Layouts/CustomerLayout';
+import CustomerLayout from '@/layouts/customer-layout';
 
 const orders = [
     { id: 1, medicine_name: 'Paracetamol', status: 'Delivered', date: '2025-08-10' },

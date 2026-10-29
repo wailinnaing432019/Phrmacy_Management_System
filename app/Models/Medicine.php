@@ -2,15 +2,18 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Medicine extends Model
 {
-    protected $fillable=[
+    use HasFactory;
+
+    protected $fillable = [
         'name',
         'description',
-        'selling_price', 
+        'selling_price',
         'category_id',
         'medicine_barcode',
         'qty',
@@ -18,12 +21,14 @@ class Medicine extends Model
         'status',
         'image',
     ];
+
     //
-public function category(): BelongsTo
+    public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
     }
- // Relation: Medicine has many PurchasedItems (batches)
+
+    // Relation: Medicine has many PurchasedItems (batches)
     public function purchasedItems()
     {
         return $this->hasMany(PurchasedItem::class);
@@ -34,6 +39,9 @@ public function category(): BelongsTo
     {
         return $this->hasMany(SaleItem::class);
     }
- 
 
+    public function stockMovements()
+    {
+        return $this->hasMany(StockMovement::class);
+    }
 }

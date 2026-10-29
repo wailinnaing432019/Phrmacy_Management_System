@@ -32,7 +32,7 @@ MediStock is a complete pharmacy / medical supply management system. It combines
 - **Admin analytics dashboard** — KPI cards (Sales Today, Purchases Today, Total Revenue, Total Cost), daily sales line chart, Top 5 Medicines bar chart, and an alerts table.
 - **Medicine inventory management** — full CRUD, categories, suppliers, and restocking via purchase batches with manufacture/expiry dates.
 - **Auto-generated Code-128 barcodes** — per-medicine barcode plus a `/barcode/{code}` PNG route and printable PDF barcode labels.
-- **FIFO inventory with expiry awareness** — batch deduction via `purchased_items` (skips expired batches) and FIFO stock restoration on order cancellation.
+- **FEFO inventory with expiry awareness** — first-expiry-first-out batch deduction from `purchased_items` (expired batches are never sold), an append-only `stock_movements` ledger, and exact batch-level restoration on cancellation or refund.
 - **Medicine alerts** — Low Stock, Expired, and Near Expiry (within 30 days) notifications.
 - **Shop sales & online orders** — manage shop sales (CSV/PDF export, shop vs online filter) and online orders with status updates (pending/completed/cancelled) that adjust stock and email invoices.
 - **Cashier POS** — camera/QR barcode scanner + manual entry, cart, received/refund amounts, and invoice generation.
@@ -136,10 +136,12 @@ medical-supply-store/
 | `sale_items` | Items within a shop sale. |
 | `orders` | Online orders: user_id, order_no, total, status, contact fields, payment_method, transaction_id. |
 | `order_items` | Items within an online order. |
-| `order_item_stocks` | FIFO restoration tracking for cancelled/returned orders. |
+| `order_item_stocks` | Batch allocation tracking for cancelled/returned orders. |
+| `stock_movements` | Append-only ledger of every stock change (purchase, sale, order, cancellation, adjustment) with balance after. |
+| `sequences` | Per-year counters for gapless invoice (`INV-YYYY-NNNNNN`) and order (`ORD-YYYY-NNNNNN`) numbers. |
 | `medicine_supplier` | Preferred-supplier links between medicines and suppliers. |
 
-**FIFO / batch note:** Inventory is deducted using first-in-first-out batch logic from `purchased_items`. Expired batches (by `exp_date`) are skipped during deduction. Cancelling or reversing an order restores stock FIFO via `order_item_stocks`.
+**FEFO / batch note:** Inventory is deducted from the earliest-expiring non-expired batch. Prices are always read from the database, never from the request. `medicines.qty` is a cached aggregate recomputed from `purchased_items` inside the same transaction that writes the movement. Expired batches (by `exp_date`) are never sold. Cancelling or reversing an order restores stock to the exact batches recorded in `order_item_stocks`.
 
 ## Installation & Setup
 

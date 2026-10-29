@@ -25,7 +25,7 @@ function ForbiddenContent() {
             )}
 
             {auth?.user?.role === "user" && (
-                <TextLink href={route('customers.index')} className="btn bg-red-500 p-2 rounded-xl">
+                <TextLink href={route('customer.index')} className="btn bg-red-500 p-2 rounded-xl">
                     Go Back
                 </TextLink>
             )}

@@ -45,7 +45,7 @@ MediStock is a complete pharmacy / medical supply management system. It combines
 | Layer | Technology |
 | --- | --- |
 | Backend | Laravel 12, PHP ^8.2 |
-| Database | SQLite (default), Eloquent ORM |
+| Database | MySQL 8 (utf8mb4), Eloquent ORM |
 | Frontend | Inertia.js v2 + React 19 + TypeScript + Vite |
 | Styling | Tailwind CSS v4 + shadcn/ui (Radix UI) + lucide-react |
 | Charts | Recharts |
@@ -156,8 +156,9 @@ npm install
 # 4. Generate application key
 php artisan key:generate
 
-# 5. Run migrations (database/database.sqlite already exists;
-#    if not, run: touch database/database.sqlite)
+# 5. Create the database and run migrations
+#    (MySQL is required in production; SQLite is not supported for multi-till use)
+mysql -u root -e "CREATE DATABASE IF NOT EXISTS pharmacy_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 php artisan migrate
 
 # 6. Link storage for medicine images
@@ -175,18 +176,20 @@ php artisan serve
 npm run dev
 ```
 
-Create users and set their `role` column (`admin` / `cashier` / `user`) via Tinker or a seeder:
+Create the first administrator account. No default credentials are shipped:
 
 ```bash
-php artisan tinker
-# Only DatabaseSeeder.php exists by default, so assign roles manually.
+php artisan app:create-admin
 ```
+
+Additional staff accounts can be created by an admin from the Users screen, or
+via Tinker by setting `users.role` to `admin`, `cashier`, or `user`.
 
 ## Configuration
 
 Key `.env` settings:
 
-- `DB_CONNECTION=sqlite` — the application uses SQLite by default.
+- `DB_CONNECTION=mysql` — MySQL 8 is required. SQLite is not supported for multi-till use.
 - `MAIL_MAILER=log` — emails (invoices, etc.) are logged by default; configure a real mailer to send.
 - **Optional Google OAuth** — add the following to enable Socialite login:
   ```
@@ -197,7 +200,10 @@ Key `.env` settings:
 
 ## Testing
 
+Tests run against a real MySQL database named `pharmacy_test` (created once):
+
 ```bash
+mysql -u root -e "CREATE DATABASE IF NOT EXISTS pharmacy_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 composer test        # Runs the Pest test suite
 ./vendor/bin/pint    # Formats the codebase
 ```

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -33,21 +34,12 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
-         $request->session()->forget('url.intended');
+        $request->session()->forget('url.intended');
         $request->authenticate();
 
         $request->session()->regenerate();
 
-        $role = Auth::user()->role;
-
-      if ($role === 'admin') {
-    return redirect()->route('dashboard');
-} elseif ($role === 'cashier') {
-    return redirect()->route('cashier.pos');
-} else {
-    return redirect()->route('customer.index'); // fallback
-}
-        // return redirect()->intended(route('dashboard', absolute: false));
+        return redirect()->route($request->user()->homeRouteName());
     }
 
     /**
@@ -55,20 +47,16 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
-         $role = Auth::user()->role;
-
+        $isCustomer = $request->user()?->role === User::ROLE_USER;
 
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        if ($role === 'admin') {
-            return redirect()->intended('/');
-        } elseif ($role === 'cashier') {
-            return redirect()->intended('/');
-        } else {
-            return redirect()->intended('/customers'); // fallback
-        } 
+        // Customers return to the storefront; staff return to the login page.
+        return $isCustomer
+            ? redirect()->route('customer.index')
+            : redirect('/');
     }
 }

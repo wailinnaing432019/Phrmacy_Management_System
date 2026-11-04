@@ -40,6 +40,14 @@ export default function MyOrders({ orders }) {
                                             <span className={`px-2 py-1 rounded text-xs ${order.status === 'pending' ? 'bg-yellow-200 text-yellow-800' : order.status === 'completed' ? 'bg-green-200 text-green-800' : 'bg-red-200 text-red-800'}`}>
                                                 {order.status}
                                             </span>
+                                            {order.status === 'pending' && order.reservation_expires_at && (
+                                                <p className="text-[10px] text-gray-500 mt-1">
+                                                    Held until {new Date(order.reservation_expires_at).toLocaleString()}
+                                                </p>
+                                            )}
+                                            {order.status === 'cancelled' && order.cancellation_reason === 'expired' && (
+                                                <p className="text-[10px] text-red-500 mt-1">Reservation expired</p>
+                                            )}
                                         </TableCell>
                                         <TableCell className="px-4 py-2">{order.created_at}</TableCell>
                                     </TableRow>

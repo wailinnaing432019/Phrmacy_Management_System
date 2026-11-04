@@ -4,10 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Exceptions\InsufficientStockException;
 use App\Mail\OrderInvoiceMail;
-use App\Models\Medicine;
 use App\Models\Order;
 use App\Models\StockMovement;
-use App\Services\InventoryService;
+use App\Services\OrderReservationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
@@ -16,7 +15,7 @@ use Inertia\Inertia;
 class OrderController extends Controller
 {
     public function __construct(
-        private readonly InventoryService $inventory,
+        private readonly OrderReservationService $reservations,
     ) {}
 
     /**
@@ -111,64 +110,59 @@ class OrderController extends Controller
         ]);
 
         $newStatus = $validated['status'];
+        $changedToCompleted = false;
 
         try {
-            DB::transaction(function () use ($order, $newStatus) {
+            DB::transaction(function () use ($order, $newStatus, &$changedToCompleted) {
                 $order = Order::query()->lockForUpdate()->findOrFail($order->id);
                 $oldStatus = $order->status;
 
-                // Moving INTO completed: take stock out of the batches.
-                if ($newStatus === 'completed' && $oldStatus !== 'completed') {
-                    $order->load('items');
-
-                    foreach ($order->items as $item) {
-                        $medicine = Medicine::query()->lockForUpdate()->findOrFail($item->medicine_id);
-
-                        $allocations = $this->inventory->deduct(
-                            $medicine,
-                            $item->qty,
-                            StockMovement::TYPE_ORDER,
-                            $order,
-                            auth()->id(),
-                        );
-
-                        foreach ($allocations as $allocation) {
-                            $item->orderItemStock()->create($allocation);
-                        }
-                    }
+                if ($oldStatus === $newStatus) {
+                    return;
                 }
 
-                // Moving OUT of completed: put stock back where it came from.
-                if ($oldStatus === 'completed' && $newStatus !== 'completed') {
-                    $order->load('items.orderItemStock');
+                if ($newStatus === 'cancelled') {
+                    $this->reservations->release(
+                        $order,
+                        StockMovement::TYPE_ORDER_CANCELLED,
+                        auth()->id(),
+                        'Order cancelled',
+                    );
 
-                    foreach ($order->items as $item) {
-                        $allocations = $item->orderItemStock
-                            ->map(fn ($stock) => [
-                                'purchased_item_id' => $stock->purchased_item_id,
-                                'quantity' => $stock->quantity,
-                            ])
-                            ->all();
+                    $order->update([
+                        'status' => 'cancelled',
+                        'cancelled_at' => now(),
+                        'cancellation_reason' => 'manual',
+                        'reservation_expires_at' => null,
+                    ]);
 
-                        if ($allocations === []) {
-                            continue;
-                        }
-
-                        $medicine = Medicine::query()->lockForUpdate()->findOrFail($item->medicine_id);
-
-                        $this->inventory->restore(
-                            $medicine,
-                            $allocations,
-                            StockMovement::TYPE_ORDER_CANCELLED,
-                            $order,
-                            auth()->id(),
-                        );
-
-                        $item->orderItemStock()->delete();
-                    }
+                    return;
                 }
 
-                $order->update(['status' => $newStatus]);
+                // Pending and completed orders both keep stock held. Completing
+                // a legacy pending order, or reopening a cancelled one, reserves
+                // whatever is still missing.
+                $this->reservations->reserveMissing(
+                    $order,
+                    auth()->id(),
+                    $oldStatus === 'cancelled' ? 'Order reopened and reserved' : 'Order stock reserved',
+                );
+
+                $order->update([
+                    'status' => $newStatus,
+                    'reserved_at' => ($oldStatus === 'cancelled' || $order->reserved_at === null)
+                        ? now()
+                        : $order->reserved_at,
+                    'reservation_expires_at' => $newStatus === 'pending'
+                        ? $this->reservations->expiryFromNow()
+                        : null,
+                    'cancelled_at' => null,
+                    'cancellation_reason' => null,
+                ]);
+
+                if ($newStatus === 'completed') {
+                    $changedToCompleted = true;
+                }
             });
         } catch (InsufficientStockException $e) {
             return back()->with('error', $e->getMessage());
@@ -176,7 +170,7 @@ class OrderController extends Controller
 
         $freshOrder = $order->fresh(['items.medicine']);
 
-        if (! empty($freshOrder->email) && $newStatus === 'completed') {
+        if ($changedToCompleted && ! empty($freshOrder->email)) {
             try {
                 Mail::to($freshOrder->email)->send(new OrderInvoiceMail($freshOrder));
             } catch (\Throwable $e) {

@@ -60,7 +60,7 @@ it('restores stock exactly when a completed order is cancelled', function () {
 
     $types = StockMovement::orderBy('id')->pluck('type')->all();
 
-    expect($types)->toBe([StockMovement::TYPE_ORDER, StockMovement::TYPE_ORDER_CANCELLED]);
+    expect($types)->toBe([StockMovement::TYPE_ORDER_RESERVED, StockMovement::TYPE_ORDER_CANCELLED]);
 });
 
 it('refuses to complete an order without enough stock', function () {

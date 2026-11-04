@@ -63,6 +63,8 @@ interface Order {
     payment_method: string
     transaction_id: string
     created_at: string
+    reservation_expires_at: string | null
+    cancellation_reason: string | null
     items: OrderItem[]
 }
 
@@ -112,16 +114,26 @@ export default function Index() {
             accessorKey: "status",
             header: "Status",
             cell: ({ row }) => (
-                <span
-                    className={`px-2 py-1 text-xs rounded-full ${row.original.status === "completed"
-                        ? "bg-green-100 text-green-700"
-                        : row.original.status === "pending"
-                            ? "bg-yellow-100 text-yellow-700"
-                            : "bg-gray-100 text-gray-700"
-                        }`}
-                >
-                    {row.original.status}
-                </span>
+                <div>
+                    <span
+                        className={`px-2 py-1 text-xs rounded-full ${row.original.status === "completed"
+                            ? "bg-green-100 text-green-700"
+                            : row.original.status === "pending"
+                                ? "bg-yellow-100 text-yellow-700"
+                                : "bg-gray-100 text-gray-700"
+                            }`}
+                    >
+                        {row.original.status}
+                    </span>
+                    {row.original.status === "pending" && row.original.reservation_expires_at && (
+                        <p className="text-[10px] text-gray-500 mt-1">
+                            Held until {new Date(row.original.reservation_expires_at).toLocaleString()}
+                        </p>
+                    )}
+                    {row.original.status === "cancelled" && row.original.cancellation_reason === "expired" && (
+                        <p className="text-[10px] text-red-500 mt-1">Reservation expired</p>
+                    )}
+                </div>
             ),
         },
         {

@@ -13,7 +13,11 @@ class StockMovement extends Model
 
     public const TYPE_ORDER = 'order';
 
+    public const TYPE_ORDER_RESERVED = 'order_reserved';
+
     public const TYPE_ORDER_CANCELLED = 'order_cancelled';
+
+    public const TYPE_ORDER_EXPIRED = 'order_expired';
 
     public const TYPE_SALE_RETURNED = 'sale_returned';
 

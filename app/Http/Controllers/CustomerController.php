@@ -11,6 +11,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\SaleItem;
 use App\Services\InventoryService;
+use App\Services\OrderReservationService;
 use App\Services\SequenceService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -24,6 +25,7 @@ class CustomerController extends Controller
     public function __construct(
         private readonly InventoryService $inventory,
         private readonly SequenceService $sequences,
+        private readonly OrderReservationService $reservations,
     ) {}
 
     public function login()
@@ -297,6 +299,7 @@ class CustomerController extends Controller
                         'id' => (int) $rows->first()['id'],
                         'qty' => (int) $rows->sum('qty'),
                     ])
+                    ->sortBy('id')
                     ->values();
 
                 $total = 0.0;
@@ -329,6 +332,8 @@ class CustomerController extends Controller
                     'order_no' => $this->sequences->orderNumber(),
                     'total' => round($total, 2),
                     'status' => 'pending',
+                    'reserved_at' => now(),
+                    'reservation_expires_at' => $this->reservations->expiryFromNow(),
                     'name' => $validated['name'],
                     'email' => $validated['email'],
                     'phone' => $validated['phone'],
@@ -346,13 +351,23 @@ class CustomerController extends Controller
                     ]);
                 }
 
+                // Hold the stock now so another customer cannot buy it while
+                // this order waits for approval.
+                $this->reservations->reserveMissing(
+                    $order,
+                    auth()->id(),
+                    'Online checkout reservation',
+                );
+
                 return $order;
             });
         } catch (InsufficientStockException $e) {
             return back()->withErrors(['items' => $e->getMessage()]);
         }
 
-        return back()->with('message', 'Order placed successfully, waiting for admin approval.');
+        $hours = max(1, (int) config('orders.reservation_hours', 24));
+
+        return back()->with('message', "Order placed successfully. We are holding your items for {$hours} hours pending approval.");
     }
 
     public function myOrders()
@@ -366,6 +381,8 @@ class CustomerController extends Controller
                 'total' => $order->total,
                 'status' => $order->status,
                 'created_at' => $order->created_at->format('d-m-Y H:i'),
+                'reservation_expires_at' => $order->reservation_expires_at?->toIso8601String(),
+                'cancellation_reason' => $order->cancellation_reason,
             ]);
 
         return Inertia::render('customers/MyOrders', ['orders' => $orders]);
@@ -388,6 +405,8 @@ class CustomerController extends Controller
                 'status' => $order->status,
                 'total' => $order->total,
                 'created_at' => $order->created_at->format('d-m-Y H:i'),
+                'reservation_expires_at' => $order->reservation_expires_at?->toIso8601String(),
+                'cancellation_reason' => $order->cancellation_reason,
             ],
             'items' => $items,
         ]);

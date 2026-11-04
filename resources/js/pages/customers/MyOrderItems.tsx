@@ -24,6 +24,14 @@ export default function MyOrderItems({ order, items }) {
                             <span className="font-semibold">Status:</span> {order.status}
                             <span className="ml-6 font-semibold">Total:</span> {order.total} MMK
                             <span className="ml-6 font-semibold">Date:</span> {order.created_at}
+                            {order.status === 'pending' && order.reservation_expires_at && (
+                                <span className="ml-6 font-semibold">
+                                    Held until: {new Date(order.reservation_expires_at).toLocaleString()}
+                                </span>
+                            )}
+                            {order.status === 'cancelled' && order.cancellation_reason === 'expired' && (
+                                <span className="ml-6 text-red-600">Reservation expired</span>
+                            )}
                         </div>
                         {items.length === 0 ? (
                             <p className="text-gray-600">No items in this order.</p>

@@ -60,4 +60,14 @@ class MedicineRepository extends BaseRepository implements MedicineRepositoryInt
             ->where('medicine_barcode', $barcode)
             ->exists();
     }
+
+    public function findByBarcode(string $barcode): ?Medicine
+    {
+        /** @var Medicine|null $medicine */
+        $medicine = $this->query()
+            ->where('medicine_barcode', $barcode)
+            ->first();
+
+        return $medicine;
+    }
 }

@@ -28,6 +28,27 @@ class MedicineService
     }
 
     /**
+     * POS lookup: medicine attributes plus its sellable quantity.
+     *
+     * @return array<string, mixed>|null
+     */
+    public function lookup(string $barcode): ?array
+    {
+        $medicine = $this->medicines->findByBarcode($barcode);
+
+        if (! $medicine) {
+            return null;
+        }
+
+        $sellableQty = $this->inventory->availableQuantity($medicine);
+
+        return array_merge($medicine->toArray(), [
+            'qty' => $sellableQty,
+            'available_qty' => $sellableQty,
+        ]);
+    }
+
+    /**
      * Lightweight medicine options for select inputs.
      */
     public function options(): Collection

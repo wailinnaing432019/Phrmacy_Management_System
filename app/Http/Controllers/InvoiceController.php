@@ -2,31 +2,37 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-
-use Barryvdh\DomPDF\Facade\Pdf; 
-use App\Models\Order;
+use App\Services\Order\OrderService;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class InvoiceController extends Controller
 {
-    // Preview invoice in browser
+    public function __construct(
+        private readonly OrderService $orders,
+    ) {}
+
+    /**
+     * Preview an order invoice in the browser.
+     */
     public function preview($orderId)
     {
-        $order = Order::with('items.medicine')->findOrFail($orderId);
+        $order = $this->orders->findForShow((int) $orderId);
 
         $pdf = Pdf::loadView('emails.orders.invoice', compact('order'))
-                  ->setPaper('A4', 'portrait');
+            ->setPaper('A4', 'portrait');
 
-        return $pdf->stream("invoice-{$order->id}.pdf"); // open in browser
+        return $pdf->stream("invoice-{$order->id}.pdf");
     }
 
-    // Download invoice directly
+    /**
+     * Download an order invoice directly.
+     */
     public function download($orderId)
     {
-        $order = Order::with('items.medicine')->findOrFail($orderId);
+        $order = $this->orders->findForShow((int) $orderId);
 
         $pdf = Pdf::loadView('emails.orders.invoice', compact('order'))
-                  ->setPaper('A4', 'portrait');
+            ->setPaper('A4', 'portrait');
 
         return $pdf->download("invoice-{$order->order_no}.pdf");
     }

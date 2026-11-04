@@ -2,42 +2,32 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\User\UserListResource;
 use App\Models\User;
+use App\Services\User\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
+    public function __construct(
+        private readonly UserService $users,
+    ) {}
+
     /**
      * Display a listing of the resource.
      */
-public function index(Request $request)
-{
-    $query = User::query();
+    public function index(Request $request)
+    {
+        $users = $this->users->paginate($request->only(['search', 'role']))
+            ->through(fn (User $user) => (new UserListResource($user))->resolve());
 
-    // Filter by search (name or email)
-    if ($request->filled('search')) {
-        $search = $request->input('search');
-        $query->where(function ($q) use ($search) {
-            $q->where('name', 'like', "%{$search}%")
-              ->orWhere('email', 'like', "%{$search}%");
-        });
+        return inertia('user/Index', [
+            'users' => $users,
+            'filters' => $request->only(['search', 'role']),
+        ]);
     }
-
-    // Filter by role
-    if ($request->filled('role')) {
-        $query->where('role', $request->input('role'));
-    }
-
-    $users = $query->paginate(10)->withQueryString();
-
-    return inertia('user/Index', [
-        'users' => $users,
-        'filters' => $request->only(['search', 'role']),
-    ]);
-}
 
     /**
      * Show the form for creating a new resource.
@@ -74,50 +64,42 @@ public function index(Request $request)
     /**
      * Update the specified resource in storage.
      */
-    
-public function update(Request $request, $id)
-{ 
-    $user = User::findOrFail($id);
+    public function update(Request $request, $id)
+    {
+        $user = $this->users->find((int) $id);
 
-    $request->validate([
-        'name' => 'required|string|max:255',
-        'email' => 'required|email|max:255|unique:users,email,' . $user->id,
-        'role' => ['required', 'string', Rule::in(['admin', 'cashier', 'user'])],
-        'password' => 'nullable|string|min:6', // optional password
-    ]);
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:users,email,'.$user->id,
+            'role' => ['required', 'string', Rule::in(['admin', 'cashier', 'user'])],
+            'password' => 'nullable|string|min:6',
+        ]);
 
-    $user->name = $request->name;
-    $user->email = $request->email;
-    $user->role = $request->role; 
-    if ($request->filled('password')) { 
-        $user->password = Hash::make($request->password);
+        $user = $this->users->update($user, $validated);
+
+        // If the admin edited their own account and changed the password or lost
+        // the admin role, end the session so the change takes effect immediately.
+        $editedSelf = $request->user()->id === $user->id;
+
+        if ($editedSelf && ($request->filled('password') || $user->role !== 'admin')) {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return redirect('/');
+        }
+
+        return redirect()->back()->with('success', 'User updated successfully.');
     }
 
-    $user->save();
+    /**
+     * Remove the specified user.
+     */
+    public function destroy($id)
+    {
+        $user = $this->users->find((int) $id);
+        $this->users->delete($user);
 
-    // If the admin edited their own account and changed the password or lost
-    // the admin role, end the session so the change takes effect immediately.
-    $editedSelf = $request->user()->id === $user->id;
-
-    if ($editedSelf && ($request->filled('password') || $user->role !== 'admin')) {
-        Auth::logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
-        return redirect('/');
+        return redirect()->back()->with('success', 'User deleted successfully.');
     }
-
-    return redirect()->back()->with('success', 'User updated successfully.');
-}
-
-/**
- * Remove the specified user.
- */
-public function destroy($id)
-{
-    $user = User::findOrFail($id);
-    $user->delete();
-
-    return redirect()->back()->with('success', 'User deleted successfully.');
-}
 }

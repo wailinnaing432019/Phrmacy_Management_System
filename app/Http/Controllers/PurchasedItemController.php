@@ -2,14 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\PurchasedItem;
-use App\Services\InventoryService;
+use App\Services\PurchasedItem\PurchasedItemService;
 use Illuminate\Http\Request;
 
 class PurchasedItemController extends Controller
 {
     public function __construct(
-        private readonly InventoryService $inventory,
+        private readonly PurchasedItemService $purchasedItems,
     ) {}
 
     public function update(Request $request, $id)
@@ -23,23 +22,7 @@ class PurchasedItemController extends Controller
             'exp_date' => 'required|date',
         ]);
 
-        $purchasedItem = PurchasedItem::findOrFail($id);
-
-        $before = $purchasedItem->qty - $purchasedItem->sold_qty;
-
-        $purchasedItem->update($data);
-
-        $after = $purchasedItem->qty - $purchasedItem->sold_qty;
-        $medicine = $purchasedItem->medicine;
-
-        if ($medicine) {
-            $this->inventory->recordAdjustment(
-                $medicine,
-                $after - $before,
-                auth()->id(),
-                "Batch #{$purchasedItem->id} edited manually.",
-            );
-        }
+        $this->purchasedItems->update((int) $id, $data);
 
         return back()->with('success', 'Purchased Item updated successfully!');
     }

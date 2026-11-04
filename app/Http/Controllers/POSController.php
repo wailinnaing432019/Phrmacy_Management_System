@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Medicine;
-use App\Models\Sale;
-use App\Services\InventoryService;
+use App\Http\Resources\Sale\InvoiceSaleResource;
+use App\Services\Medicine\MedicineService;
+use App\Services\Sale\SaleService;
 use Inertia\Inertia;
 
 class POSController extends Controller
 {
     public function __construct(
-        private readonly InventoryService $inventory,
+        private readonly MedicineService $medicines,
+        private readonly SaleService $sales,
     ) {}
 
     public function index()
@@ -20,35 +21,25 @@ class POSController extends Controller
 
     public function lookup($barcode)
     {
-        $medicine = Medicine::where('medicine_barcode', $barcode)->first();
+        $medicine = $this->medicines->lookup($barcode);
 
         if (! $medicine) {
             return response()->json(['error' => 'Not found'], 404);
         }
 
-        $sellableQty = $this->inventory->availableQuantity($medicine);
-
-        return response()->json(array_merge(
-            $medicine->toArray(),
-            [
-                'qty' => $sellableQty,
-                'available_qty' => $sellableQty,
-            ]
-        ));
+        return response()->json($medicine);
     }
 
     public function invoice($id)
     {
-        $sale = Sale::with('items.medicine')->findOrFail($id);
+        $sale = $this->sales->findForCashier((int) $id);
 
         if (auth()->user()?->role !== 'admin') {
             abort_unless((int) $sale->sale_by === (int) auth()->id(), 403);
         }
 
-        // dd($sale);
-        // return view('Sale.Invoice',compact('sale'));
         return Inertia::render('pos/Invoice', [
-            'sale' => $sale,
+            'sale' => (new InvoiceSaleResource($sale))->resolve(),
         ]);
     }
 }

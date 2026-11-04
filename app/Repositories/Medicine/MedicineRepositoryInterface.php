@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Medicine;
 
+use App\Models\Medicine;
 use App\Repositories\BaseRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
@@ -18,4 +19,9 @@ interface MedicineRepositoryInterface extends BaseRepositoryInterface
      * Whether a barcode is already taken, including soft-deleted medicines.
      */
     public function barcodeExists(string $barcode): bool;
+
+    /**
+     * Find a medicine by its barcode.
+     */
+    public function findByBarcode(string $barcode): ?Medicine;
 }

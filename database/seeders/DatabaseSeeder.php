@@ -15,5 +15,6 @@ class DatabaseSeeder extends Seeder
         // security risk. Create the first admin with:
         //
         //     php artisan app:create-admin
+        $this->call(Userfactory::class);
     }
 }

@@ -51,13 +51,16 @@ class CreateAdminCommand extends Command
             return self::FAILURE;
         }
 
-        User::create([
+        $user = User::create([
             'name' => $name,
             'email' => $email,
             'password' => $password,
             'role' => User::ROLE_ADMIN,
-            'email_verified_at' => now(),
         ]);
+
+        // email_verified_at is intentionally not mass-assignable; verify the
+        // account explicitly so the new admin can sign in immediately.
+        $user->markEmailAsVerified();
 
         $this->info("Administrator {$email} created. You can now sign in.");
 

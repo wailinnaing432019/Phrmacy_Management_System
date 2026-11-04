@@ -11,6 +11,7 @@ class Order extends Model
 
     protected $fillable = [
         'user_id',
+        'customer_id',
         'order_no',
         'total',
         'status',
@@ -35,9 +36,20 @@ class Order extends Model
         ];
     }
 
+    /**
+     * Legacy staff-account owner. Removed once customer auth owns orders.
+     */
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Customer account that placed the order.
+     */
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class);
     }
 
     public function items()

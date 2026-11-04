@@ -63,13 +63,33 @@ app/Http/Resources/Medicine/MedicineResource.php
 ## Soft deletes and activity logs
 
 - `SoftDeletes` is applied to **master data only**: Medicine, Category, Supplier,
-  MedicineSupplier, and User. Sales, orders, returns, and stock movements remain
+  MedicineSupplier, User, and Customer. Sales, orders, returns, and stock movements remain
   immutable and are never deleted.
 - `App\Models\Concerns\HasActivityLog` wraps `spatie/laravel-activitylog` and logs
   fillable attributes, dirty changes only, excluding passwords and tokens. The log name
   is the table name.
 - Unique medicine names and barcodes ignore soft-deleted rows so a deleted medicine does
   not block a new one.
+
+## Customer accounts
+
+Customers are stored separately from staff in `customers` and authenticate through the
+`customer` session guard (provider `customers`, password broker `customers` using
+`customer_password_reset_tokens`). Staff keep using the `web` guard and `users` table.
+
+The split lands in batches while the storefront stays on its existing Inertia pages:
+
+1. **C1 (done)** — `customers` table/model/factory, guard/provider/broker, and a nullable
+   `orders.customer_id` backfilled from legacy `users.role = 'user'` accounts.
+2. **C2** — customer registration, login, logout, password reset, and Google OAuth move to
+   the customer guard; `users.role` narrows to `admin | cashier`.
+3. **C3–C4** — storefront, checkout, and admin order views move to `customer_id`; the
+   legacy `orders.user_id` column is dropped once nothing reads it.
+4. **C5** — Sanctum-authenticated API and the customer SPA.
+
+> Until C2, `orders.user_id` is intentionally kept. Dropping it earlier would break
+> registration followed by checkout, because new customers still authenticate on the web
+> guard.
 
 ## Adding a new module
 

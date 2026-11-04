@@ -103,3 +103,22 @@ it('merges duplicate cart lines for the same medicine', function () {
     expect((float) Sale::firstOrFail()->total)->toBe(300.0)
         ->and($medicine->fresh()->qty)->toBe(7);
 });
+
+it('rejects duplicate cart lines whose combined quantity exceeds stock', function () {
+    $medicine = Medicine::factory()->create(['selling_price' => 100]);
+    $batch = PurchasedItem::factory()->for($medicine)->create(['qty' => 3]);
+
+    $response = $this->actingAs(cashier())->post('/cashier/pos/complete-sale', [
+        'cart' => [
+            ['id' => $medicine->id, 'quantity' => 2],
+            ['id' => $medicine->id, 'quantity' => 2],
+        ],
+        'received' => 1000,
+    ]);
+
+    $response->assertSessionHasErrors('error');
+
+    expect(Sale::count())->toBe(0)
+        ->and($batch->fresh()->sold_qty)->toBe(0)
+        ->and($medicine->fresh()->qty)->toBe(3);
+});

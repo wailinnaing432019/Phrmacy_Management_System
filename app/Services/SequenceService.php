@@ -56,4 +56,9 @@ class SequenceService
     {
         return sprintf('ORD-%d-%06d', now()->year, $this->next('order'));
     }
+
+    public function returnNumber(): string
+    {
+        return sprintf('RET-%d-%06d', now()->year, $this->next('return'));
+    }
 }

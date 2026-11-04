@@ -247,6 +247,8 @@ class SaleController extends Controller
             return Inertia::render('sale/Show', [
                 'sale' => [
                     'id' => $order->id,
+                    'is_online' => true,
+                    'refunded_total' => 0,
                     'invoice_no' => $order->order_no, // online order uses order_no
                     'sale_by' => $order->user->name ?? $order->name ?? 'N/A', // user name or guest
                     'total' => $order->total,
@@ -267,16 +269,20 @@ class SaleController extends Controller
             return Inertia::render('sale/Show', [
                 'sale' => [
                     'id' => $sale->id,
+                    'is_online' => false,
                     'invoice_no' => $sale->invoice_no,
                     'sale_by' => $sale->user->name ?? 'N/A',
                     'total' => $sale->total,
+                    'refunded_total' => (float) $sale->refunded_total,
                     'received_amount' => $sale->received_amount,
                     'refund_amount' => $sale->refund_amount,
                     'payment_method' => $sale->payment_method,
-                    'created_at' => $sale->updated_at->format('d-m-Y H:s'),
+                    'created_at' => $sale->created_at->format('d-m-Y H:i'),
                     'items' => $sale->items->map(fn ($item) => [
+                        'id' => $item->id,
                         'medicine_name' => $item->medicine->name ?? 'Unknown',
                         'quantity' => $item->quantity,
+                        'returned_qty' => $item->returned_qty,
                         'unit_price' => $item->unit_price,
                         'subtotal' => $item->subtotal,
                     ]),

@@ -35,6 +35,7 @@ MediStock is a complete pharmacy / medical supply management system. It combines
 - **FEFO inventory with expiry awareness** — first-expiry-first-out batch deduction from `purchased_items` (expired batches are never sold), an append-only `stock_movements` ledger, and exact batch-level restoration on cancellation or refund.
 - **Medicine alerts** — Low Stock, Expired, and Near Expiry (within 30 days) notifications.
 - **Shop sales & online orders** — manage shop sales (CSV/PDF export, shop vs online filter) and online orders with status updates (pending/completed/cancelled) that adjust stock and email invoices.
+- **Returns & refunds** — partial, per-line returns on shop sales; restock into the exact original batch by default (opt out for damaged goods); server-priced refunds; printable credit notes; and `RET-YYYY-NNNNNN` numbering.
 - **Cashier POS** — camera/QR barcode scanner + manual entry, cart, received/refund amounts, and invoice generation.
 - **Customer storefront** — product browsing with search, category filter, and sorting (price low-high/high-low, top-selling, new-arrivals), product detail, cart (localStorage), and checkout.
 - **Payments & invoices** — PDF invoices (DomPDF), Maatwebsite/Excel CSV/PDF export, and invoice emails via Laravel Mail.
@@ -132,16 +133,18 @@ medical-supply-store/
 | `suppliers` | Medicine suppliers. |
 | `medicines` | Medicines: name, category_id, price, qty, stock_limit, status, image, medicine_barcode. |
 | `purchased_items` | Purchase batches: medicine_id, qty, sold_qty, unit_price, mfd_date, exp_date. |
-| `sales` | Shop sales: invoice_no, sale_by, total, received, refund. |
-| `sale_items` | Items within a shop sale. |
+| `sales` | Shop sales: invoice_no, sale_by, total, refunded_total, received, refund. |
+| `sale_items` | Items within a shop sale, linked to the batch they came from; tracks `returned_qty`. |
 | `orders` | Online orders: user_id, order_no, total, status, contact fields, payment_method, transaction_id. |
 | `order_items` | Items within an online order. |
 | `order_item_stocks` | Batch allocation tracking for cancelled/returned orders. |
-| `stock_movements` | Append-only ledger of every stock change (purchase, sale, order, cancellation, adjustment) with balance after. |
-| `sequences` | Per-year counters for gapless invoice (`INV-YYYY-NNNNNN`) and order (`ORD-YYYY-NNNNNN`) numbers. |
+| `sale_returns` | Shop-sale returns: return_no, sale_id, processed_by, total, refund_method, reason. |
+| `sale_return_items` | Returned lines: original sale_item, batch, quantity, refund, and whether it was restocked. |
+| `stock_movements` | Append-only ledger of every stock change (purchase, sale, order, cancellation, return, adjustment) with balance after. |
+| `sequences` | Per-year counters for invoice (`INV-YYYY-NNNNNN`), order (`ORD-YYYY-NNNNNN`), and return (`RET-YYYY-NNNNNN`) numbers. |
 | `medicine_supplier` | Preferred-supplier links between medicines and suppliers. |
 
-**FEFO / batch note:** Inventory is deducted from the earliest-expiring non-expired batch. Prices are always read from the database, never from the request. `medicines.qty` is a cached aggregate recomputed from `purchased_items` inside the same transaction that writes the movement. Expired batches (by `exp_date`) are never sold. Cancelling or reversing an order restores stock to the exact batches recorded in `order_item_stocks`.
+**FEFO / batch note:** Inventory is deducted from the earliest-expiring non-expired batch. Prices are always read from the database, never from the request. `medicines.qty` is a cached aggregate recomputed from `purchased_items` inside the same transaction that writes the movement. Expired batches (by `exp_date`) are never sold. Cancelling or reversing an order restores stock to the exact batches recorded in `order_item_stocks`. Returns restore the exact batch recorded on the original sale line, and refunds use the price recorded on that line.
 
 ## Installation & Setup
 

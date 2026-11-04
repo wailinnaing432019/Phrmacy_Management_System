@@ -1,11 +1,12 @@
 import { Link } from '@inertiajs/react';
 import { NavItem } from '@/types';
-import { LayoutDashboard, ShoppingCart, Receipt } from 'lucide-react';
+import { LayoutDashboard, ShoppingCart, Receipt, Undo2 } from 'lucide-react';
 
 const cashierNavItems: NavItem[] = [
     { title: 'Dashboard', href: '/cashier/dashboard', icon: LayoutDashboard },
     { title: 'Sale', href: '/cashier/sale', icon: ShoppingCart },
     { title: 'POS', href: '/cashier/pos', icon: Receipt },
+    { title: 'Returns', href: '/returns', icon: Undo2 },
 ];
 
 interface AppLayoutProps {

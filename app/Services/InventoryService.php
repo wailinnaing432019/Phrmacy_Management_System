@@ -8,6 +8,7 @@ use App\Models\PurchasedItem;
 use App\Models\StockMovement;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class InventoryService
 {
@@ -213,7 +214,7 @@ class InventoryService
             'type' => $type,
             'quantity' => $signedQuantity,
             'balance_after' => $medicine->qty,
-            'reference_type' => $reference ? strtolower(class_basename($reference)) : null,
+            'reference_type' => $reference ? Str::snake(class_basename($reference)) : null,
             'reference_id' => $reference?->getKey(),
             'user_id' => $userId,
             'note' => $note,

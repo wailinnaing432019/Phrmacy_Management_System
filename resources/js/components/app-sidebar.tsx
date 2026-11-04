@@ -12,6 +12,7 @@ import {
     Package,
     Users,
     BarChart,
+    Undo2,
 } from 'lucide-react';
 import AppLogo from './app-logo';
 import { Sankey } from 'recharts';
@@ -30,6 +31,11 @@ const cashierNavItems: NavItem[] = [
         title: 'POS',
         href: '/cashier/pos',
         icon: Receipt, // Changed from Sandwich
+    },
+    {
+        title: 'Returns',
+        href: '/returns',
+        icon: Undo2,
     }
 ]
 const adminNavItems = [
@@ -59,6 +65,11 @@ const adminNavItems = [
         title: 'Sales',
         href: '/sales',
         icon: ShoppingCart, // Changed from LayoutGrid
+    },
+    {
+        title: 'Returns',
+        href: '/returns',
+        icon: Undo2,
     },
     {
         title: 'Users',

@@ -1,12 +1,13 @@
 import { Menubar, MenubarMenu, MenubarTrigger, MenubarContent, MenubarItem } from "@/components/ui/menubar";
 import { router, usePage } from "@inertiajs/react";
-import { Home, LayoutDashboard, Receipt, ShoppingCart, CircleUserRound, LogOut } from "lucide-react";
+import { Home, LayoutDashboard, Receipt, ShoppingCart, CircleUserRound, LogOut, Undo2 } from "lucide-react";
 import { Toaster } from "sonner";
 
 const cashierNavItems = [
     { title: 'Dashboard', href: '/cashier/dashboard', icon: LayoutDashboard },
     { title: 'Sale', href: '/cashier/sale', icon: ShoppingCart },
     { title: 'POS', href: '/cashier/pos', icon: Receipt },
+    { title: 'Returns', href: '/returns', icon: Undo2 },
 ];
 
 export default function CashierMenu() {

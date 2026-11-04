@@ -56,6 +56,9 @@ MediStock is a complete pharmacy / medical supply management system. It combines
 | Auth | Laravel Breeze + Laravel Socialite (Google OAuth) + custom `RoleMiddleware` |
 | Utilities | Ziggy, framer-motion, sonner, react-qr-barcode-scanner, Mail |
 
+> Backend layout (controllers → services → repositories → resources) is documented in
+> [`docs/architecture.md`](docs/architecture.md).
+
 ## Roles & Access Control
 
 The `users.role` column controls access via a custom `RoleMiddleware` (`admin` | `cashier` | `user`).

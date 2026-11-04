@@ -188,18 +188,21 @@ class CashierController extends Controller
 
         $query = Sale::with('user')->whereDate('created_at', Carbon::now())->where('sale_by', Auth::user()->id);
 
-        // Handle sorting
+        // Handle sorting (whitelisted columns only)
+        $sortable = ['invoice_no', 'total', 'created_at', 'id'];
         $col = request('col');
-        $dir = request('dir');
+        $dir = request('dir') === 'asc' ? 'asc' : 'desc';
 
-        if ($col && $dir) {
+        if (is_string($col) && in_array($col, $sortable, true)) {
             $query->orderBy($col, $dir);
         }
 
-        // Handle search
+        // Handle search (grouped so it cannot bypass the cashier/date filters)
         if ($search = request('search')) {
-            $query->where('invoice_no', 'like', "%{$search}%")
-                ->orWhere('total', 'like', "%{$search}%");
+            $query->where(function ($q) use ($search) {
+                $q->where('invoice_no', 'like', "%{$search}%")
+                    ->orWhere('total', 'like', "%{$search}%");
+            });
         }
 
         return Inertia::render('cashier/Sale', [
@@ -213,6 +216,8 @@ class CashierController extends Controller
 
     public function show(Sale $sale)
     {
+        abort_unless((int) $sale->sale_by === (int) auth()->id(), 403);
+
         $sale->load('items.medicine', 'user');
 
         return Inertia::render('cashier/SaleShow', [

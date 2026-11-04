@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\InsufficientStockException;
+use App\Mail\ContactConfirmation;
+use App\Mail\ContactMessage;
 use App\Models\Category;
 use App\Models\Medicine;
 use App\Models\Order;
@@ -400,22 +402,16 @@ class CustomerController extends Controller
     public function send(Request $request)
     {
         $data = $request->validate([
-            'first_name' => 'required|string',
-            'last_name' => 'required|string',
-            'email' => 'required|email',
-            'subject' => 'required|string',
-            'user_message' => 'required|string',
+            'first_name' => ['required', 'string', 'max:100'],
+            'last_name' => ['required', 'string', 'max:100'],
+            'email' => ['required', 'email', 'max:255'],
+            'subject' => ['required', 'string', 'max:150', 'not_regex:/[\r\n]/'],
+            'user_message' => ['required', 'string', 'max:5000'],
         ]);
 
-        Mail::send('emails.admin_contact', $data, function ($mail) use ($data) {
-            $mail->to('shwezin56824@gmail.com')
-                ->subject('New Contact Message: '.$data['subject']);
-        });
+        Mail::to(config('mail.contact_address'))->send(new ContactMessage($data));
 
-        Mail::send('emails.user_response', $data, function ($mail) use ($data) {
-            $mail->to($data['email'])
-                ->subject('We received your message');
-        });
+        Mail::to($data['email'])->send(new ContactConfirmation($data));
 
         return back()->with('success', 'Message sent successfully!');
     }

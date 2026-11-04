@@ -42,10 +42,15 @@ class SaleController extends Controller
             $invoiceCol = 'invoice_no';
         }
 
-        // Sorting
+        // Sorting (whitelisted columns only; never pass request input to orderBy)
+        $sortable = $source === 'online'
+            ? ['order_no', 'total', 'created_at', 'id']
+            : ['invoice_no', 'total', 'created_at', 'id'];
+
         $col = request('col');
-        $dir = request('dir');
-        if ($col && $dir) {
+        $dir = request('dir') === 'asc' ? 'asc' : 'desc';
+
+        if (is_string($col) && in_array($col, $sortable, true)) {
             $query->orderBy($col, $dir);
         }
 

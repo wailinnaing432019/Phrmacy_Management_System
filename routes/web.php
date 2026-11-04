@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BarcodeController;
 use App\Http\Controllers\CashierController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CustomerController;
@@ -17,10 +18,9 @@ use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-use Picqer\Barcode\BarcodeGeneratorPNG;
 
-Route::get('auth/google', [GoogleController::class, 'redirect'])->name('google.redirect');
-Route::get('auth/google/callback', [GoogleController::class, 'callback'])->name('google.callback');
+Route::get('auth/google', [GoogleController::class, 'redirect'])->middleware('throttle:20,1')->name('google.redirect');
+Route::get('auth/google/callback', [GoogleController::class, 'callback'])->middleware('throttle:20,1')->name('google.callback');
 Route::get('/', function () {
     // return Inertia::render('welcome');
     return redirect()->route('login');
@@ -68,14 +68,15 @@ Route::prefix('cashier')->middleware(['auth', 'verified', 'role:cashier'])->cont
     Route::post('/pos/complete-sale', [SaleController::class, 'store'])->name('pos.sale');
 
     Route::get('/pos/invoice/{id}', [PosController::class, 'invoice'])->name('cashier.invoice');
-    Route::get('/pos/lookup/{barcode}', [POSController::class, 'lookup']);
+    Route::get('/pos/lookup/{barcode}', [POSController::class, 'lookup'])
+        ->where('barcode', '[A-Za-z0-9._-]{1,64}')
+        ->middleware('throttle:120,1');
 });
-Route::get('/barcode/{code}', function ($code) {
-    $generator = new BarcodeGeneratorPNG;
-    $barcode = $generator->getBarcode($code, $generator::TYPE_CODE_128);
 
-    return response($barcode)->header('Content-Type', 'image/png');
-});
+Route::middleware(['auth', 'verified', 'role:admin,cashier', 'throttle:120,1'])
+    ->get('/barcode/{code}', BarcodeController::class)
+    ->where('code', '[A-Za-z0-9._-]{1,64}')
+    ->name('barcode.png');
 
 Route::middleware(['auth', 'verified', 'role:admin,cashier'])->controller(SaleReturnController::class)->group(function () {
     Route::get('/returns', 'index')->name('returns.index');
@@ -86,7 +87,9 @@ Route::middleware(['auth', 'verified', 'role:admin,cashier'])->controller(SaleRe
 });
 
 Route::middleware(['auth', 'verified', 'role:user'])->group(function () {
-    Route::post('/checkout', [CustomerController::class, 'checkout'])->name('checkout');
+    Route::post('/checkout', [CustomerController::class, 'checkout'])
+        ->middleware('throttle:20,1')
+        ->name('checkout');
     Route::get('/my-orders', [CustomerController::class, 'myOrders'])->name('customers.myorders');
     Route::get('/my-orders/{order}', [CustomerController::class, 'myOrderItems'])->name('customers.myorderitems');
     Route::get('/customers/checkout', [CustomerController::class, 'showCheckout'])->name('customer.checkout');
@@ -101,7 +104,9 @@ Route::get('/customers', [CustomerController::class, 'index'])->name('customer.i
 Route::get('/customers/products', [CustomerController::class, 'products'])->name('customers.products');
 Route::get('/customers/product/{medicine}', [CustomerController::class, 'product'])->name('customers.product');
 Route::get('/customers/cart', [CustomerController::class, 'cart'])->name('customer.cart');
-Route::post('/customers/contact', [CustomerController::class, 'send'])->name('contact');
+Route::post('/customers/contact', [CustomerController::class, 'send'])
+    ->middleware('throttle:5,1')
+    ->name('contact');
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

@@ -62,8 +62,8 @@ The `users.role` column controls access via a custom `RoleMiddleware` (`admin` |
 
 | Role | Capabilities |
 | --- | --- |
-| **Admin** | Dashboard analytics; Medicines CRUD + restock (purchase batches with mfd/exp dates); Categories, Suppliers, Medicine-Supplier preferred-supplier links; Shop Sales list/show with CSV/PDF export (shop vs online source filter); Online Orders management with status updates (pending/completed/cancelled) that deduct/restore stock FIFO and email invoices; Users management; Invoice preview/download PDF; Print barcode PDF labels. |
-| **Cashier** | Cashier POS (camera/QR barcode scanner + manual code, cart, received/refund amount, complete sale → opens invoice); Cashier dashboard (same analytics); Sales list + sale detail/invoice. |
+| **Admin** | Dashboard analytics; Medicines CRUD + restock (purchase batches with mfd/exp dates); Categories, Suppliers, Medicine-Supplier preferred-supplier links; Shop Sales list/show with CSV/PDF export (shop vs online source filter); Online Orders management with status updates (pending/completed/cancelled) that deduct/restore stock FIFO and email invoices; Shop-sale returns/refunds with credit notes; Users management; Invoice preview/download PDF; Print barcode PDF labels. |
+| **Cashier** | Cashier POS (camera/QR barcode scanner + manual code, cart, received/refund amount, complete sale → opens invoice); Cashier dashboard (same analytics); Sales list + own sale detail/invoice; Shop-sale returns/refunds. |
 | **Customer** | Public storefront home/products (search, category filter, sort: price low-high/high-low/top-selling/new-arrivals); product detail; cart (localStorage) + checkout (name/email/phone/address/payment method/transaction id); My Orders; login/register (incl. Google OAuth); contact form. |
 
 ## Screenshots
@@ -196,12 +196,20 @@ Key `.env` settings:
 
 - `DB_CONNECTION=mysql` — MySQL 8 is required. SQLite is not supported for multi-till use.
 - `MAIL_MAILER=log` — emails (invoices, etc.) are logged by default; configure a real mailer to send.
+- `MAIL_CONTACT_ADDRESS` — where storefront contact-form messages are delivered (defaults to `MAIL_FROM_ADDRESS`).
 - **Optional Google OAuth** — add the following to enable Socialite login:
   ```
   GOOGLE_CLIENT_ID=your-client-id
   GOOGLE_CLIENT_SECRET=your-client-secret
   GOOGLE_REDIRECT_URI=your-redirect-uri
   ```
+
+### Security notes
+
+- Barcode images (`/barcode/{code}`) require a verified admin or cashier session, accept only 1–64 safe characters, and are rate limited.
+- Login, registration, password reset, storefront checkout, contact form, and POS barcode lookups are rate limited.
+- Sale list sorting is whitelisted (never raw request columns), and cashiers can open only their own sale details and invoices.
+- In production, set a real `MAIL_MAILER`/SMTP credentials because email verification is enforced, and change the seeded local admin password before the pilot.
 
 ## Testing
 

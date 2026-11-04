@@ -113,4 +113,16 @@ return [
         'name' => env('MAIL_FROM_NAME', 'Example'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Contact / Support Address
+    |--------------------------------------------------------------------------
+    |
+    | Where storefront contact-form messages are delivered. Keep this out of
+    | controllers so each deployment can route it without code changes.
+    |
+    */
+
+    'contact_address' => env('MAIL_CONTACT_ADDRESS') ?: env('MAIL_FROM_ADDRESS', 'hello@example.com'),
+
 ];

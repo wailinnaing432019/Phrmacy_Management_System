@@ -72,6 +72,7 @@ export default function Show({ medicine, purchasedItems }) {
                             <p><span className="font-semibold text-gray-700">Barcode:</span> {medicine.medicine_barcode}</p>
                             <p><span className="font-semibold text-gray-700">Selling Price:</span> <span className="text-purple-700 font-bold">{medicine.selling_price}</span></p>
                             <p><span className="font-semibold text-gray-700">Stock Limit:</span> {medicine.stock_limit}</p>
+                            <p><span className="font-semibold text-gray-700">Sellable Qty:</span> {medicine.sellable_qty}</p>
                             <p><span className="font-semibold text-gray-700">Description:</span> {medicine.description}</p>
                             <p><span className="font-semibold text-gray-700">Created At:</span> {medicine.created_at}</p>
                             <p><span className="font-semibold text-gray-700">Updated At:</span> {medicine.updated_at}</p>

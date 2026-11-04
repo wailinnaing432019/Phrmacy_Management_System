@@ -38,7 +38,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     const increaseQty = (id: number) => {
         setCart(cart.map(item => {
             if (item.id === id) {
-                if ((item.qty || 1) < (item.available_qty || 10)) {
+                if ((item.qty || 1) < (item.available_qty ?? item.qty ?? 0)) {
                     return { ...item, qty: (item.qty || 1) + 1 };
                 }
             }

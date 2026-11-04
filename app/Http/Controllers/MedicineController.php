@@ -53,14 +53,16 @@ class MedicineController extends Controller
 
         // 📦 Pagination with available quantity calculation
         $medicines = $query->paginate(7)->through(function ($medicine) {
-            $availableQty = $medicine->purchasedItems->sum(fn ($b) => $b->qty - $b->sold_qty);
+            $physicalQty = $medicine->purchasedItems->sum(fn ($b) => $b->qty - $b->sold_qty);
+            $sellableQty = $this->inventory->availableQuantity($medicine);
 
             return [
                 'id' => $medicine->id,
                 'name' => $medicine->name,
                 'description' => $medicine->description,
                 'selling_price' => $medicine->selling_price,
-                'qty' => $availableQty,
+                'qty' => $physicalQty,
+                'sellable_qty' => $sellableQty,
                 'stock_limit' => $medicine->stock_limit,
                 'medicine_barcode' => $medicine->medicine_barcode,
                 'category' => $medicine->category->name ?? '—',
@@ -232,6 +234,7 @@ class MedicineController extends Controller
                 'selling_price' => $medicine->selling_price,
                 'medicine_barcode' => $medicine->medicine_barcode,
                 'stock_limit' => $medicine->stock_limit,
+                'sellable_qty' => $medicine->sellableQty(),
                 'image' => $medicine->image ? asset('storage/'.$medicine->image) : null,
                 'category' => $medicine->category->name ?? '—',
                 'created_at' => Carbon::parse($medicine->created_at)->format('d-m-Y'),

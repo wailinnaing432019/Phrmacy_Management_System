@@ -32,7 +32,7 @@ MediStock is a complete pharmacy / medical supply management system. It combines
 - **Admin analytics dashboard** — KPI cards (Sales Today, Purchases Today, Total Revenue, Total Cost), daily sales line chart, Top 5 Medicines bar chart, and an alerts table.
 - **Medicine inventory management** — full CRUD, categories, suppliers, and restocking via purchase batches with manufacture/expiry dates.
 - **Auto-generated Code-128 barcodes** — per-medicine barcode plus a `/barcode/{code}` PNG route and printable PDF barcode labels.
-- **FEFO inventory with expiry awareness** — first-expiry-first-out batch deduction from `purchased_items` (expired batches are never sold), an append-only `stock_movements` ledger, and exact batch-level restoration on cancellation or refund.
+- **FEFO inventory with expiry awareness** — first-expiry-first-out batch deduction from `purchased_items` (expired batches are never sold), an append-only `stock_movements` ledger, and exact batch-level restoration on cancellation or refund. Storefront listings, product pages, and POS lookups only expose non-expired sellable stock.
 - **Medicine alerts** — Low Stock, Expired, and Near Expiry (within 30 days) notifications.
 - **Shop sales & online orders** — manage shop sales (CSV/PDF export, shop vs online filter) and online orders with status updates (pending/completed/cancelled) that adjust stock and email invoices.
 - **Returns & refunds** — partial, per-line returns on shop sales; restock into the exact original batch by default (opt out for damaged goods); server-priced refunds; printable credit notes; and `RET-YYYY-NNNNNN` numbering.
@@ -144,7 +144,7 @@ medical-supply-store/
 | `sequences` | Per-year counters for invoice (`INV-YYYY-NNNNNN`), order (`ORD-YYYY-NNNNNN`), and return (`RET-YYYY-NNNNNN`) numbers. |
 | `medicine_supplier` | Preferred-supplier links between medicines and suppliers. |
 
-**FEFO / batch note:** Inventory is deducted from the earliest-expiring non-expired batch. Prices are always read from the database, never from the request. `medicines.qty` is a cached aggregate recomputed from `purchased_items` inside the same transaction that writes the movement. Expired batches (by `exp_date`) are never sold. Cancelling or reversing an order restores stock to the exact batches recorded in `order_item_stocks`. Returns restore the exact batch recorded on the original sale line, and refunds use the price recorded on that line.
+**FEFO / batch note:** Inventory is deducted from the earliest-expiring non-expired batch. Prices are always read from the database, never from the request. `medicines.qty` is the physical cached aggregate recomputed from `purchased_items` inside the same transaction that writes the movement. Storefront pages, POS lookups, and medicine listings expose a computed **sellable** quantity that only counts non-expired batches; the admin medicine list shows both physical and sellable stock. Expired batches (by `exp_date`) are never sold. Cancelling or reversing an order restores stock to the exact batches recorded in `order_item_stocks`. Returns restore the exact batch recorded on the original sale line, and refunds use the price recorded on that line.
 
 ## Installation & Setup
 

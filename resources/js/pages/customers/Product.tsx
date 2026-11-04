@@ -16,6 +16,11 @@ export default function Product({ medicines, categories, filters }) {
     const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
 
     const addToCart = (product) => {
+        if (!product.qty || product.qty < 1) {
+            toast.error(`${product.name} is out of stock`);
+            return;
+        }
+
         setCart((prev) => {
             const exists = prev.find(item => item.id === product.id);
             let newCart;
@@ -34,7 +39,7 @@ export default function Product({ medicines, categories, filters }) {
                     image: product.image,
                     price: product.selling_price,
                     qty: 1,
-                    available_qty: product.qty || 10
+                    available_qty: product.qty ?? 0
                 }];
             }
 

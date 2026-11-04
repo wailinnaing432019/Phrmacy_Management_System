@@ -44,6 +44,7 @@ type Medicine = {
     description: string;
     selling_price: string;
     qty: number;
+    sellable_qty: number;
     stock_limit: number;
     medicine_barcode: string;
     created_at: string;
@@ -135,7 +136,7 @@ export default function Index({ medicines, filters, categories }: { medicines: {
                                 <TableHead>Image</TableHead>
                                 <TableHead>Category</TableHead>
                                 <TableHead>Barcode</TableHead>
-                                <TableHead>Qty</TableHead>
+                                <TableHead>Stock</TableHead>
                                 <TableHead>Unit Price</TableHead>
                                 <TableHead>Description</TableHead>
                                 <TableHead>Status</TableHead>
@@ -184,10 +185,13 @@ export default function Index({ medicines, filters, categories }: { medicines: {
                                     </TableCell>
 
                                     <TableCell>
-                                        {medicine.qty}
-                                        {medicine.stock_limit > medicine.qty && (
-                                            <sup className='bg-red-700 rounded-xl p-0.5 m-2'>Low Stock</sup>
-                                        )}
+                                        <div>
+                                            {medicine.sellable_qty}
+                                            <span className="text-xs text-gray-500"> / {medicine.qty}</span>
+                                            {medicine.stock_limit > medicine.sellable_qty && (
+                                                <sup className='bg-red-700 rounded-xl p-0.5 m-2'>Low Stock</sup>
+                                            )}
+                                        </div>
                                     </TableCell>
 
                                     <TableCell>{medicine.selling_price}</TableCell>

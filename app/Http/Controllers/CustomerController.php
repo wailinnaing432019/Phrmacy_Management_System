@@ -38,7 +38,7 @@ class CustomerController extends Controller
 
     public function index(Request $request)
     {
-        $query = Medicine::query()->where('status', 'available')->latest();
+        $query = Medicine::query()->availableForSale()->withSellableQty()->latest();
 
         // ✅ Search filter
         if ($request->has('search')) {
@@ -51,12 +51,10 @@ class CustomerController extends Controller
         }
 
         // ✅ Get only latest 10 records
-        $medicines = $query->with(['category', 'purchasedItems'])
+        $medicines = $query->with('category')
             ->take(12)
             ->get()
             ->map(function ($medicine) {
-                $availableQty = $medicine->purchasedItems->sum(fn ($b) => $b->qty - $b->sold_qty);
-
                 return [
                     'id' => $medicine->id,
                     'name' => $medicine->name,
@@ -64,7 +62,7 @@ class CustomerController extends Controller
                     'selling_price' => $medicine->selling_price,
                     'image' => $medicine->image ? asset('storage/'.$medicine->image) : null,
                     'category' => $medicine->category->name ?? '—',
-                    'qty' => $availableQty,
+                    'qty' => (int) $medicine->sellable_qty,
                     'stock_limit' => $medicine->stock_limit,
                     'medicine_barcode' => $medicine->medicine_barcode,
                 ];
@@ -79,7 +77,7 @@ class CustomerController extends Controller
 
     public function products(Request $request)
     {
-        $query = Medicine::query()->where('status', 'available');
+        $query = Medicine::query()->availableForSale()->withSellableQty();
         $limit = 6; // default pagination size
 
         // ✅ Search filter
@@ -151,11 +149,9 @@ class CustomerController extends Controller
 
         // ✅ Final query
         if ($isSpecial) {
-            $medicines = $query->with(['category', 'purchasedItems'])
+            $medicines = $query->with('category')
                 ->get()
                 ->map(function ($medicine) {
-                    $availableQty = $medicine->purchasedItems->sum(fn ($b) => $b->qty - $b->sold_qty);
-
                     return [
                         'id' => $medicine->id,
                         'name' => $medicine->name,
@@ -163,7 +159,7 @@ class CustomerController extends Controller
                         'selling_price' => $medicine->selling_price,
                         'image' => $medicine->image ? asset('storage/'.$medicine->image) : null,
                         'category' => $medicine->category->name ?? '—',
-                        'qty' => $availableQty,
+                        'qty' => (int) $medicine->sellable_qty,
                         'stock_limit' => $medicine->stock_limit,
                         'medicine_barcode' => $medicine->medicine_barcode,
                     ];
@@ -176,12 +172,10 @@ class CustomerController extends Controller
                 'meta' => [],  // optional: empty meta
             ];
         } else {
-            $medicines = $query->with(['category', 'purchasedItems'])
+            $medicines = $query->with('category')
                 ->paginate($limit)
                 ->withQueryString()
                 ->through(function ($medicine) {
-                    $availableQty = $medicine->purchasedItems->sum(fn ($b) => $b->qty - $b->sold_qty);
-
                     return [
                         'id' => $medicine->id,
                         'name' => $medicine->name,
@@ -189,7 +183,7 @@ class CustomerController extends Controller
                         'selling_price' => $medicine->selling_price,
                         'image' => $medicine->image ? asset('storage/'.$medicine->image) : null,
                         'category' => $medicine->category->name ?? '—',
-                        'qty' => $availableQty,
+                        'qty' => (int) $medicine->sellable_qty,
                         'stock_limit' => $medicine->stock_limit,
                         'medicine_barcode' => $medicine->medicine_barcode,
                     ];
@@ -205,8 +199,8 @@ class CustomerController extends Controller
 
     public function product(Medicine $medicine)
     {
-        // Calculate available quantity from purchasedItems
-        $availableQty = $medicine->purchasedItems->sum(fn ($b) => $b->qty - $b->sold_qty);
+        // Sellable quantity only: expired batches never count.
+        $availableQty = $medicine->sellableQty();
 
         // Get all categories for the filter panel
         $categories = Category::all();
@@ -234,7 +228,7 @@ class CustomerController extends Controller
 
     public function home(Request $request)
     {
-        $query = Medicine::query()->where('status', 'available');
+        $query = Medicine::query()->availableForSale()->withSellableQty();
 
         if ($request->has('search')) {
             $query->where('name', 'like', '%'.$request->search.'%');
@@ -251,7 +245,7 @@ class CustomerController extends Controller
                     'selling_price' => $medicine->selling_price,
                     'image' => $medicine->image ? asset('storage/'.$medicine->image) : null,
                     'category' => $medicine->category->name ?? '—',
-                    'qty' => $medicine->qty,
+                    'qty' => (int) $medicine->sellable_qty,
                 ];
             });
 

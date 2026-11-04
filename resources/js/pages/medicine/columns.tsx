@@ -22,6 +22,7 @@ export type Medicine = {
     description: string
     selling_price: string
     qty: number
+    sellable_qty: number
     stock_limit: number
     medicine_barcode: string
     created_at: string
@@ -81,14 +82,19 @@ export const columns = () => {
         },
         {
             accessorKey: "qty",
-            header: "Qty",
+            header: "Stock",
+            cell: ({ row }) => <span>{row.getValue("qty")}</span>,
+        },
+        {
+            accessorKey: "sellable_qty",
+            header: "Sellable",
             cell: ({ row }) => {
-                const qty = row.getValue("qty") as number
+                const sellable = row.getValue("sellable_qty") as number
                 const stockLimit = row.original.stock_limit
                 return (
                     <div>
-                        {qty}
-                        {stockLimit > qty && (
+                        {sellable}
+                        {stockLimit > sellable && (
                             <sup className="bg-red-700 rounded-xl px-1 ml-2 text-white text-xs">
                                 Low Stock
                             </sup>

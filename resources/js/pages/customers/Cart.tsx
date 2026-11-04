@@ -14,7 +14,7 @@ const getInitialCart = () => {
     return parsed.map(item => ({
         ...item,
         qty: item.qty || 1,
-        available_qty: item.available_qty || 10
+        available_qty: item.available_qty ?? item.qty ?? 0
     }));
 };
 

@@ -4,10 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Models\Medicine;
 use App\Models\Sale;
+use App\Services\InventoryService;
 use Inertia\Inertia;
 
 class POSController extends Controller
 {
+    public function __construct(
+        private readonly InventoryService $inventory,
+    ) {}
+
     public function index()
     {
         return Inertia::render('pos/POS');
@@ -21,9 +26,14 @@ class POSController extends Controller
             return response()->json(['error' => 'Not found'], 404);
         }
 
+        $sellableQty = $this->inventory->availableQuantity($medicine);
+
         return response()->json(array_merge(
             $medicine->toArray(),
-            ['available_qty' => $medicine->qty]
+            [
+                'qty' => $sellableQty,
+                'available_qty' => $sellableQty,
+            ]
         ));
     }
 

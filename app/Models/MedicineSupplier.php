@@ -14,8 +14,16 @@ class MedicineSupplier extends Model
         'medicine_id',
         'supplier_id',
         'supplier_price',
-        'is_preferred', // ✅ include this
+        'is_preferred',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'is_preferred' => 'boolean',
+            'supplier_price' => 'decimal:2',
+        ];
+    }
 
     public function medicine()
     {

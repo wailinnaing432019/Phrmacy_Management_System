@@ -2,22 +2,26 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Category;
+use App\Http\Resources\Category\CategoryResource;
+use App\Http\Resources\Medicine\MedicineDetailResource;
+use App\Http\Resources\Medicine\MedicineEditResource;
+use App\Http\Resources\Medicine\MedicineResource;
+use App\Http\Resources\Medicine\PurchasedItemResource;
 use App\Models\Medicine;
-use App\Models\PurchasedItem;
-use App\Services\InventoryService;
+use App\Services\Category\CategoryService;
+use App\Services\Medicine\MedicineService;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Carbon\Carbon;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Picqer\Barcode\BarcodeGeneratorPNG;
 
 class MedicineController extends Controller
 {
     public function __construct(
-        private readonly InventoryService $inventory,
+        private readonly MedicineService $medicines,
+        private readonly CategoryService $categories,
     ) {}
 
     /**
@@ -25,61 +29,15 @@ class MedicineController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Medicine::with(['category', 'purchasedItems'])
-            ->latest();
+        $filters = $request->only(['search', 'category', 'sortBy', 'sortDirection']);
 
-        // 🔍 Search by name or description
-        if ($request->filled('search')) {
-            $query->where(function ($q) use ($request) {
-                $q->where('name', 'like', '%'.$request->search.'%')
-                    ->orWhere('description', 'like', '%'.$request->search.'%');
-            });
-        }
-
-        // 📂 Filter by category
-        if ($request->filled('category')) {
-            $query->whereHas('category', function ($q) use ($request) {
-                $q->where('name', $request->category);
-            });
-        }
-
-        // 📌 Sorting (Name & Unit Price)
-        if ($request->filled('sortBy') && in_array($request->sortBy, ['name', 'selling_price'])) {
-            $direction = $request->sortDirection === 'desc' ? 'desc' : 'asc';
-            $query->orderBy($request->sortBy, $direction);
-        } else {
-            $query->latest(); // default order
-        }
-
-        // 📦 Pagination with available quantity calculation
-        $medicines = $query->paginate(7)->through(function ($medicine) {
-            $physicalQty = $medicine->purchasedItems->sum(fn ($b) => $b->qty - $b->sold_qty);
-            $sellableQty = $this->inventory->availableQuantity($medicine);
-
-            return [
-                'id' => $medicine->id,
-                'name' => $medicine->name,
-                'description' => $medicine->description,
-                'selling_price' => $medicine->selling_price,
-                'qty' => $physicalQty,
-                'sellable_qty' => $sellableQty,
-                'stock_limit' => $medicine->stock_limit,
-                'medicine_barcode' => $medicine->medicine_barcode,
-                'category' => $medicine->category->name ?? '—',
-                'created_at' => $medicine->created_at->format('d-m-Y'),
-                'updated_at' => $medicine->updated_at->format('d-m-Y'),
-                'image' => $medicine->image,
-                'status' => $medicine->status,
-            ];
-        });
-
-        // Send filters for frontend
-        $categories = \App\Models\Category::pluck('name');
+        $medicines = $this->medicines->paginate($filters)
+            ->through(fn (Medicine $medicine) => (new MedicineResource($medicine))->resolve());
 
         return Inertia::render('medicine/Index', [
             'medicines' => $medicines,
-            'filters' => $request->only(['search', 'category', 'sortBy', 'sortDirection']),
-            'categories' => $categories,
+            'filters' => $filters,
+            'categories' => $this->categories->names(),
         ]);
     }
 
@@ -89,7 +47,7 @@ class MedicineController extends Controller
             'qty' => 'required|integer|min:1',
         ]);
 
-        $medicine = Medicine::findOrFail($id);
+        $medicine = $this->medicines->find((int) $id);
         $qty = $request->input('qty');
 
         $generator = new BarcodeGeneratorPNG;
@@ -115,7 +73,7 @@ class MedicineController extends Controller
     public function create()
     {
         return Inertia::render('medicine/Create', [
-            'categories' => Category::all(),
+            'categories' => CategoryResource::collection($this->categories->list())->resolve(),
         ]);
     }
 
@@ -124,69 +82,29 @@ class MedicineController extends Controller
      */
     public function store(Request $request)
     {
-
         $validated = $request->validate([
-            'name' => 'required|string|unique:medicines,name|max:255',
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('medicines', 'name')->whereNull('deleted_at'),
+            ],
             'category_id' => 'required|exists:categories,id',
             'description' => 'required|string',
             'selling_price' => 'required|numeric|min:0',
-            // 'medicine_barcode' => 'nullable|string|max:255|unique:medicines,medicine_barcode',
-            'qty' => 'required|integer|min:1', // qty must be greater than stock_limit
-            'stock_limit' => 'required|integer|min:0|lt:qty', // stock_limit must be less than qty
+            'qty' => 'required|integer|min:1',
+            'stock_limit' => 'required|integer|min:0|lt:qty',
             'purchase_price' => 'required|numeric|min:0',
             'image' => 'nullable|image|max:2048',
-            'status' => 'nullable',
-
+            'status' => 'nullable|in:available,not_available',
             'mfd_date' => 'required|date',
             'exp_date' => 'required|date|after:mfd_date',
         ], [
             'stock_limit.lt' => 'Stock limit must be less than quantity.',
         ]);
-        // Generate a shorter, unique barcode (e.g., MED + random 6 digits)
-        do {
-            $barcode = 'MED'.rand(100000, 999999);
-        } while (Medicine::where('medicine_barcode', $barcode)->exists());
 
-        // generate barcode
-        // $validated['medicine_barcode'] = 'MED' . now()->format('YmdHis') . rand(100, 999);
-        $filePath = '';
-        if ($request->hasFile('image')) {
-            $file = $request->file('image');
-            $filePath = $file->store('medicines', 'public');
-
-        }
         try {
-            DB::beginTransaction();
-            $medicine = Medicine::create([
-                'name' => $validated['name'],
-                'category_id' => $validated['category_id'],
-                'description' => $validated['description'],
-                'selling_price' => $validated['selling_price'],
-                'qty' => $validated['qty'],
-                'stock_limit' => $validated['stock_limit'],
-                'medicine_barcode' => $barcode,
-                'image' => $filePath,
-                'status' => $validated['status'],
-            ]);
-
-            if ($medicine) {
-                $batch = PurchasedItem::create([
-                    'medicine_id' => $medicine->id,
-                    'qty' => $validated['qty'],
-                    'unit_price' => $validated['purchase_price'],
-                    'description' => $validated['description'],
-                    'mfd_date' => $validated['mfd_date'],
-                    'exp_date' => $validated['exp_date'],
-                ]);
-
-                $this->inventory->recordPurchase(
-                    $medicine,
-                    $batch,
-                    $validated['qty'],
-                    auth()->id(),
-                );
-            }
-            DB::commit();
+            $medicine = $this->medicines->create($validated, $request->file('image'));
 
             return to_route('medicines.index')
                 ->with('success', 'Medicine Created Successfully!')
@@ -194,13 +112,9 @@ class MedicineController extends Controller
                     'id' => $medicine->id,
                     'qty' => $validated['qty'],
                 ]);
-            // return to_route('medicines.index')->with('success',"Medicine Created Successfully!");
         } catch (\Exception $e) {
-            DB::rollBack();
-
             return to_route('medicines.index')->with('error', 'Something Went Wrong!'.$e);
         }
-
     }
 
     /**
@@ -208,39 +122,11 @@ class MedicineController extends Controller
      */
     public function show(Medicine $medicine)
     {
-        // Eager load purchasedItems ordered by exp_date ASC (oldest first, NULLs last)
-        $medicine->load([
-            'category',
-            'purchasedItems' => function ($query) {
-                $query->orderByRaw('CASE WHEN exp_date IS NULL THEN 1 ELSE 0 END, exp_date DESC');
-            },
-        ]);
-
-        $purchasedItems = $medicine->purchasedItems->map(fn ($batch) => [
-            'id' => $batch->id,
-            'qty' => $batch->qty,
-            'sold_qty' => $batch->sold_qty,
-            'available_qty' => $batch->qty - $batch->sold_qty,
-            'unit_price' => $batch->unit_price,
-            'mfd_date' => $batch->mfd_date ? Carbon::parse($batch->mfd_date)->format('Y-m-d') : null,
-            'exp_date' => $batch->exp_date ? Carbon::parse($batch->exp_date)->format('Y-m-d') : null,
-        ]);
+        $medicine = $this->medicines->findForShow($medicine->id);
 
         return Inertia::render('medicine/Show', [
-            'medicine' => [
-                'id' => $medicine->id,
-                'name' => $medicine->name,
-                'description' => $medicine->description,
-                'selling_price' => $medicine->selling_price,
-                'medicine_barcode' => $medicine->medicine_barcode,
-                'stock_limit' => $medicine->stock_limit,
-                'sellable_qty' => $medicine->sellableQty(),
-                'image' => $medicine->image ? asset('storage/'.$medicine->image) : null,
-                'category' => $medicine->category->name ?? '—',
-                'created_at' => Carbon::parse($medicine->created_at)->format('d-m-Y'),
-                'updated_at' => Carbon::parse($medicine->updated_at)->format('d-m-Y'),
-            ],
-            'purchasedItems' => $purchasedItems,
+            'medicine' => (new MedicineDetailResource($medicine))->resolve(),
+            'purchasedItems' => PurchasedItemResource::collection($medicine->purchasedItems)->resolve(),
         ]);
     }
 
@@ -249,29 +135,11 @@ class MedicineController extends Controller
      */
     public function edit(Medicine $medicine)
     {
-        $categories = Category::select('id', 'name')->get();
-
-        // Load purchasedItems to calculate available qty
-        $medicine->load('purchasedItems');
-
-        $availableQty = $medicine->purchasedItems->sum(fn ($b) => $b->qty - $b->sold_qty);
+        $medicine = $this->medicines->findForEdit($medicine->id);
 
         return Inertia::render('medicine/Edit', [
-            'medicine' => [
-                'id' => $medicine->id,
-                'name' => $medicine->name,
-                'description' => $medicine->description,
-                'selling_price' => $medicine->selling_price,
-                'qty' => $availableQty, // ✅ Add available qty here
-                'stock_limit' => $medicine->stock_limit,
-                'medicine_barcode' => $medicine->medicine_barcode,
-                'category_id' => $medicine->category_id,
-                'created_at' => $medicine->created_at->format('d-m-Y'),
-                'updated_at' => $medicine->updated_at->format('d-m-Y'),
-                'image' => $medicine->image,
-                'status' => $medicine->status,
-            ],
-            'categories' => $categories,
+            'medicine' => (new MedicineEditResource($medicine))->resolve(),
+            'categories' => CategoryResource::collection($this->categories->list())->resolve(),
         ]);
     }
 
@@ -281,44 +149,34 @@ class MedicineController extends Controller
     public function update(Request $request, Medicine $medicine)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255|unique:medicines,name,'.$medicine->id,
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('medicines', 'name')
+                    ->ignore($medicine->id)
+                    ->whereNull('deleted_at'),
+            ],
             'category_id' => 'required|exists:categories,id',
             'description' => 'nullable|string',
             'selling_price' => 'required|numeric|min:0',
             'stock_limit' => 'required|integer|min:0',
-            'image' => 'nullable|max:2048',
-            'status' => 'nullable',
+            'image' => 'nullable|image|max:2048',
+            'status' => 'nullable|in:available,not_available',
         ]);
-        $filePath = $medicine->image;
-        if ($request->hasFile('image')) {
-            $file = $request->file('image');
-            $filePath = $file->store('medicines', 'public');
-            Storage::disk('public')->delete($medicine->image);
-        }
+
         try {
-            DB::beginTransaction();
-            $medicine->update([
-                'name' => $validated['name'],
-                'category_id' => $validated['category_id'],
-                'description' => $validated['description'],
-                'selling_price' => $validated['selling_price'],
-                'stock_limit' => $validated['stock_limit'],
-                'image' => $filePath,
-                'status' => $validated['status'],
-            ]);
-            DB::commit();
+            $this->medicines->update($medicine, $validated, $request->file('image'));
 
             return to_route('medicines.index')->with('success', 'Medicine updated.');
         } catch (\Exception $e) {
-            DB::rollBack();
-
             return to_route('medicines.index')->with('error', 'Something Went Wrong while Updating.'.$e);
-
         }
-
     }
 
-    // MedicineController.php
+    /**
+     * Restock an existing medicine.
+     */
     public function addQty(Request $request, Medicine $medicine)
     {
         $validated = $request->validate([
@@ -330,36 +188,12 @@ class MedicineController extends Controller
         ]);
 
         try {
-            DB::beginTransaction();
-            $medicine->qty += $validated['qty'];
-            $medicine->save();
-
-            $batch = PurchasedItem::create([
-                'medicine_id' => $medicine->id,
-                'qty' => $validated['qty'],
-                'unit_price' => $validated['unit_price'],
-                'description' => $validated['description'],
-                'mfd_date' => $validated['mfd_date'],
-                'exp_date' => $validated['exp_date'],
-            ]);
-
-            $this->inventory->recordPurchase(
-                $medicine,
-                $batch,
-                $validated['qty'],
-                auth()->id(),
-            );
-
-            DB::commit();
+            $this->medicines->addQuantity($medicine, $validated);
 
             return to_route('medicines.index')->with('success', 'Quantity Restock successfully.');
-
         } catch (\Exception $e) {
-            DB::rollBack();
-
             return to_route('medicines.index')->with('error', 'Something Went Wrong');
         }
-
     }
 
     /**
@@ -368,11 +202,10 @@ class MedicineController extends Controller
     public function destroy(Medicine $medicine)
     {
         try {
-            Medicine::destroy($medicine->id);
+            $this->medicines->delete($medicine);
 
             return to_route('medicines.index')->with('error', 'Medicine '.$medicine->name.' Delete Successfullly!');
-
-        } catch (\Illuminate\Database\QueryException $e) {
+        } catch (QueryException $e) {
             if ($e->getCode() == '23000') {
                 return back()->with('error', 'Cannot delete this medicine because it has related  orders.');
             }

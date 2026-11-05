@@ -81,15 +81,12 @@ The split lands in batches while the storefront stays on its existing Inertia pa
 
 1. **C1 (done)** — `customers` table/model/factory, guard/provider/broker, and a nullable
    `orders.customer_id` backfilled from legacy `users.role = 'user'` accounts.
-2. **C2** — customer registration, login, logout, password reset, and Google OAuth move to
-   the customer guard; `users.role` narrows to `admin | cashier`.
-3. **C3–C4** — storefront, checkout, and admin order views move to `customer_id`; the
-   legacy `orders.user_id` column is dropped once nothing reads it.
-4. **C5** — Sanctum-authenticated API and the customer SPA.
-
-> Until C2, `orders.user_id` is intentionally kept. Dropping it earlier would break
-> registration followed by checkout, because new customers still authenticate on the web
-> guard.
+2. **C2 (done)** — customer registration, login, logout, password reset, and Google OAuth
+   moved to the `customer` guard; `users.role` narrowed to `admin | cashier`; `orders.user_id`
+   dropped.
+3. **C3** — storefront controllers refactored into repository/service/resources.
+4. **C4** — checkout and customer order management moved to customer-centric controllers/services.
+5. **C5** — Sanctum-authenticated API and the customer SPA.
 
 ## Adding a new module
 

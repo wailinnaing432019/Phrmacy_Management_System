@@ -328,7 +328,7 @@ class CustomerController extends Controller
                 }
 
                 $order = Order::create([
-                    'user_id' => auth()->id(),
+                    'customer_id' => auth('customer')->id(),
                     'order_no' => $this->sequences->orderNumber(),
                     'total' => round($total, 2),
                     'status' => 'pending',
@@ -355,7 +355,7 @@ class CustomerController extends Controller
                 // this order waits for approval.
                 $this->reservations->reserveMissing(
                     $order,
-                    auth()->id(),
+                    auth('customer')->id(),
                     'Online checkout reservation',
                 );
 
@@ -372,7 +372,7 @@ class CustomerController extends Controller
 
     public function myOrders()
     {
-        $orders = Order::where('user_id', auth()->id())
+        $orders = Order::where('customer_id', auth('customer')->id())
             ->orderByDesc('created_at')
             ->get()
             ->map(fn ($order) => [
@@ -390,7 +390,7 @@ class CustomerController extends Controller
 
     public function myOrderItems($orderId)
     {
-        $order = Order::where('user_id', auth()->id())->findOrFail($orderId);
+        $order = Order::where('customer_id', auth('customer')->id())->findOrFail($orderId);
 
         $items = $order->items()->with('medicine')->get()->map(fn ($item) => [
             'id' => $item->id,

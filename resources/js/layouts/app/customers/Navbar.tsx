@@ -16,7 +16,7 @@ export default function Navbar() {
     const navRef = useRef<HTMLDivElement>(null);
     const { auth, lastCategories } = usePage().props;
 
-    useEffect(() => setIsLoggedIn(!!auth?.user), [auth]);
+    useEffect(() => setIsLoggedIn(!!auth?.customer), [auth]);
 
     // ✅ Handle Active Link including dropdowns
     useEffect(() => {
@@ -69,7 +69,7 @@ export default function Navbar() {
 
     const handleLogout = () => {
         setIsLoggedIn(false);
-        router.post("/logout");
+        router.post(route('customer.logout'));
     };
 
     const handleSearch = (e: React.FormEvent) => {
@@ -182,7 +182,7 @@ export default function Navbar() {
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
                                         <span className="flex cursor-pointer items-center gap-2 px-5 py-1 text-purple-900">
-                                            <span>Hi, {auth.user?.name}</span>
+                                            <span>Hi, {auth.customer?.name}</span>
                                             <span className="flex h-8 w-8 items-center justify-center rounded-full bg-purple-200">
                                                 <User2 className="h-5 w-5 text-purple-900" />
                                             </span>
@@ -196,8 +196,8 @@ export default function Navbar() {
                             </div>
                         ) : (
                             <>
-                                <Button><Link href={route('login')}>Login</Link></Button>
-                                <Button><Link href={route('register')}>Register</Link></Button>
+                                <Button><Link href={route('customer.login')}>Login</Link></Button>
+                                <Button><Link href={route('customer.register')}>Register</Link></Button>
                             </>
                         )}
                     </div>

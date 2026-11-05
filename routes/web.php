@@ -86,20 +86,18 @@ Route::middleware(['auth', 'verified', 'role:admin,cashier'])->controller(SaleRe
     Route::get('/returns/{saleReturn}/pdf', 'pdf')->name('returns.pdf');
 });
 
-Route::middleware(['auth', 'verified', 'role:user'])->group(function () {
+// Customer-authenticated routes (customer guard + email verified)
+Route::middleware(['customer', 'customer.verified'])->group(function () {
     Route::post('/checkout', [CustomerController::class, 'checkout'])
         ->middleware('throttle:20,1')
         ->name('checkout');
     Route::get('/my-orders', [CustomerController::class, 'myOrders'])->name('customers.myorders');
     Route::get('/my-orders/{order}', [CustomerController::class, 'myOrderItems'])->name('customers.myorderitems');
     Route::get('/customers/checkout', [CustomerController::class, 'showCheckout'])->name('customer.checkout');
-
     Route::get('/customers/orders', [CustomerController::class, 'orders'])->name('customer.orders');
 });
 
-Route::get('/customers/login', [CustomerController::class, 'login'])->name('customer.login');
-Route::get('/customers/register', [CustomerController::class, 'register'])->name('customer.register');
-
+// Public storefront routes
 Route::get('/customers', [CustomerController::class, 'index'])->name('customer.index');
 Route::get('/customers/products', [CustomerController::class, 'products'])->name('customers.products');
 Route::get('/customers/product/{medicine}', [CustomerController::class, 'product'])->name('customers.product');

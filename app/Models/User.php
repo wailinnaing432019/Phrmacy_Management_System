@@ -19,8 +19,6 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public const ROLE_CASHIER = 'cashier';
 
-    public const ROLE_USER = 'user';
-
     /**
      * The named route a user should land on after login or registration.
      */
@@ -29,7 +27,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return match ($this->role) {
             self::ROLE_ADMIN => 'dashboard',
             self::ROLE_CASHIER => 'cashier.pos',
-            default => 'customer.index',
+            default => 'dashboard',
         };
     }
 

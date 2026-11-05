@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Models\Customer;
 use App\Models\Order;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -16,7 +16,7 @@ class OrderFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id' => User::factory(),
+            'customer_id' => Customer::factory(),
             'order_no' => 'ORD-'.fake()->unique()->numerify('########'),
             'total' => 100.00,
             'status' => 'pending',

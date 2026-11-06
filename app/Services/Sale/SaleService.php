@@ -135,7 +135,7 @@ class SaleService
     public function findForShow(string $source, int $id): Sale|Order
     {
         return $source === 'online'
-            ? $this->orders->findWithItemsAndUser($id)
+            ? $this->orders->findWithItemsAndCustomer($id)
             : $this->sales->findWithItems($id);
     }
 

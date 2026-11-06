@@ -20,7 +20,7 @@ class OrderShowResource extends JsonResource
         return [
             'id' => $this->id,
             'order_no' => $this->order_no,
-            'customer' => $this->user->name ?? $this->name,
+            'customer' => $this->customer?->name ?? $this->name,
             'email' => $this->email,
             'phone' => $this->phone,
             'address' => $this->address,

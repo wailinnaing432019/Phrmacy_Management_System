@@ -48,7 +48,7 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
 
     public function paginateForReport(array $filters, int $perPage = 6): LengthAwarePaginator
     {
-        $query = $this->query()->with('user');
+        $query = $this->query()->with('customer');
 
         $this->applySort($query, $filters);
         $this->applySearch($query, $filters);
@@ -59,21 +59,26 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
 
     public function exportQuery(array $filters): Collection
     {
-        $query = $this->query()->with('user');
+        $query = $this->query()->with('customer');
 
         $this->applyDateFilters($query, $filters);
 
         return $query->latest()->get();
     }
 
-    public function findWithItemsAndUser(int $id): Order
+    public function findWithItemsAndCustomer(int $id): Order
     {
         /** @var Order $order */
         $order = $this->query()
-            ->with(['items.medicine', 'user'])
+            ->with(['items.medicine', 'customer'])
             ->findOrFail($id);
 
         return $order;
+    }
+
+    public function findWithItemsAndUser(int $id): Order
+    {
+        return $this->findWithItemsAndCustomer($id);
     }
 
     /**

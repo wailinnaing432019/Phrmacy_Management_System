@@ -33,5 +33,10 @@ interface OrderRepositoryInterface extends BaseRepositoryInterface
     /**
      * Load an order with its lines and customer.
      */
+    public function findWithItemsAndCustomer(int $id): Order;
+
+    /**
+     * Compatibility alias.
+     */
     public function findWithItemsAndUser(int $id): Order;
 }

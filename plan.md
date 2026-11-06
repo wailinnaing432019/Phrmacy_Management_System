@@ -30,6 +30,7 @@ changing code, then follow the batch order.
 | `661f5ac` | Cleanup: removed 5 unreferenced controllers, added `docs/architecture.md` |
 | `ea59e5d` | **C1**: `customers` table/model/factory, `customer` guard/provider/broker, `orders.customer_id` + backfill |
 | `b184fa0` | **C2**: Customer auth flows (`customer` guard, split login, password reset, email verification, drop `orders.user_id`, narrow `users.role`) |
+| `e42f9e5` | **C3**: Storefront refactor (`StorefrontRepository`, `StorefrontService`, `StorefrontController`, `ContactController`, resources) |
 
 ### Uncommitted user work — do not touch or commit
 
@@ -180,40 +181,17 @@ Extract the storefront half into repositories/services/resources without changin
 
 ---
 
-### C4 — Orders/checkout + admin views (next)
+### C4 — Orders/checkout + admin views (done)
 
-Finish moving orders from the legacy user relationship to `Customer`.
-
-**Tasks**
-
-- `CustomerOrderRepository` + `CustomerOrderService`:
-  - checkout transaction (lock medicines, price from DB, availability check, create order +
-    items, reserve stock);
-  - `myOrders` and `myOrderItems` scoped to `auth('customer')->id()`;
-  - cancellation/expiry behavior if present on the customer side.
-- Move `checkout`, `myOrders`, `myOrderItems`, and the checkout page into
-  `CustomerOrderController`, with resources matching `customers/MyOrders`,
-  `customers/MyOrderItems`, `customers/Checkout`.
-- Update admin/sales order code to use the `customer` relation:
-  - `app/Models/Order.php` (`customer()` exists; remove `user()` once unused)
-  - `app/Repositories/Order/OrderRepository.php`
-  - `app/Services/Sale/SaleService.php`
-  - `app/Http/Resources/Order/OrderListResource.php`,
-    `OrderShowResource.php`, `app/Http/Resources/Sale/OrderSaleShowResource.php`
-  - `app/Http/Controllers/CustomerController.php` (if not already gone)
-- `OrderFactory` must default to `Customer::factory()` and `customer_id`.
-- Ensure admin order lists/details show the customer name even for guest-style orders
-  (`name` fallback already exists).
-
-**Acceptance criteria**
-
-- Nothing reads `orders.user_id` (the column should already be gone after C2).
-- All order resources expose the same props the pages expect.
-- Pint clean, `npm run build` passes, one commit.
+Moved orders from legacy user relationship to `Customer`:
+- `CustomerOrderRepository` + `CustomerOrderService` + `CustomerOrderController`
+- Resources matching `customers/MyOrders`, `customers/MyOrderItems`
+- Removed `CustomerController.php`
+- Cleaned `Order.php`, `OrderRepository.php`, `SaleService.php`, and admin order resources to use `customer` relationship with `name` fallback.
 
 ---
 
-### C5 — Customer API + SPA
+### C5 — Customer API + SPA (next)
 
 **API**
 

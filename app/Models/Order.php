@@ -10,7 +10,6 @@ class Order extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id',
         'customer_id',
         'order_no',
         'total',
@@ -34,14 +33,6 @@ class Order extends Model
             'reservation_expires_at' => 'datetime',
             'cancelled_at' => 'datetime',
         ];
-    }
-
-    /**
-     * Legacy staff-account owner. Removed once customer auth owns orders.
-     */
-    public function user()
-    {
-        return $this->belongsTo(User::class);
     }
 
     /**

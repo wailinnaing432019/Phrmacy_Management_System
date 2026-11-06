@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use App\Repositories\Category\CategoryRepository;
 use App\Repositories\Category\CategoryRepositoryInterface;
+use App\Repositories\CustomerOrder\CustomerOrderRepository;
+use App\Repositories\CustomerOrder\CustomerOrderRepositoryInterface;
 use App\Repositories\Dashboard\DashboardRepository;
 use App\Repositories\Dashboard\DashboardRepositoryInterface;
 use App\Repositories\Medicine\MedicineRepository;
@@ -35,6 +37,7 @@ class RepositoryServiceProvider extends ServiceProvider
      */
     public array $bindings = [
         CategoryRepositoryInterface::class => CategoryRepository::class,
+        CustomerOrderRepositoryInterface::class => CustomerOrderRepository::class,
         DashboardRepositoryInterface::class => DashboardRepository::class,
         MedicineRepositoryInterface::class => MedicineRepository::class,
         MedicineSupplierRepositoryInterface::class => MedicineSupplierRepository::class,

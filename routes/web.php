@@ -4,7 +4,7 @@ use App\Http\Controllers\BarcodeController;
 use App\Http\Controllers\CashierController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ContactController;
-use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\CustomerOrderController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GoogleController;
 use App\Http\Controllers\InvoiceController;
@@ -90,13 +90,13 @@ Route::middleware(['auth', 'verified', 'role:admin,cashier'])->controller(SaleRe
 
 // Customer-authenticated routes (customer guard + email verified)
 Route::middleware(['customer', 'customer.verified'])->group(function () {
-    Route::post('/checkout', [CustomerController::class, 'checkout'])
+    Route::post('/checkout', [CustomerOrderController::class, 'checkout'])
         ->middleware('throttle:20,1')
         ->name('checkout');
-    Route::get('/my-orders', [CustomerController::class, 'myOrders'])->name('customers.myorders');
-    Route::get('/my-orders/{order}', [CustomerController::class, 'myOrderItems'])->name('customers.myorderitems');
-    Route::get('/customers/checkout', [CustomerController::class, 'showCheckout'])->name('customer.checkout');
-    Route::get('/customers/orders', [CustomerController::class, 'orders'])->name('customer.orders');
+    Route::get('/my-orders', [CustomerOrderController::class, 'myOrders'])->name('customers.myorders');
+    Route::get('/my-orders/{order}', [CustomerOrderController::class, 'myOrderItems'])->name('customers.myorderitems');
+    Route::get('/customers/checkout', [CustomerOrderController::class, 'showCheckout'])->name('customer.checkout');
+    Route::get('/customers/orders', [CustomerOrderController::class, 'orders'])->name('customer.orders');
 });
 
 // Public storefront routes

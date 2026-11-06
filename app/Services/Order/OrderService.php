@@ -29,7 +29,7 @@ class OrderService
 
     public function findForShow(int $id): Order
     {
-        return $this->orders->findWithItemsAndUser($id);
+        return $this->orders->findWithItemsAndCustomer($id);
     }
 
     /**

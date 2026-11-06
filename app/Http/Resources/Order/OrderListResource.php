@@ -30,7 +30,10 @@ class OrderListResource extends JsonResource
             'transaction_id' => $this->transaction_id,
             'created_at' => $this->created_at,
             'user' => [
-                'name' => $this->user?->name,
+                'name' => $this->customer?->name ?? $this->name,
+            ],
+            'customer' => [
+                'name' => $this->customer?->name ?? $this->name,
             ],
             'items' => $this->items->map(fn ($item) => [
                 'id' => $item->id,

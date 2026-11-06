@@ -22,7 +22,7 @@ class OrderSaleShowResource extends JsonResource
             'is_online' => true,
             'refunded_total' => 0,
             'invoice_no' => $this->order_no,
-            'sale_by' => $this->user->name ?? $this->name ?? 'N/A',
+            'sale_by' => $this->customer?->name ?? $this->name ?? 'N/A',
             'total' => $this->total,
             'payment_method' => $this->payment_method,
             'created_at' => $this->updated_at->format('d-m-Y H:s'),

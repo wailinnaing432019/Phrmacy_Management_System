@@ -58,6 +58,7 @@ app/Http/Resources/Medicine/MedicineResource.php
 | Users | `UserRepository` | `UserService` |
 | Purchase batches | `PurchasedItemRepository` | `PurchasedItemService` |
 | Storefront | `StorefrontRepository` | `StorefrontService` |
+| Customer orders | `CustomerOrderRepository` | `CustomerOrderService` |
 
 `BarcodeController` is intentionally thin: it only renders a Code-128 PNG.
 
@@ -86,7 +87,7 @@ The split lands in batches while the storefront stays on its existing Inertia pa
    moved to the `customer` guard; `users.role` narrowed to `admin | cashier`; `orders.user_id`
    dropped.
 3. **C3 (done)** — storefront controllers refactored into repository/service/resources.
-4. **C4** — checkout and customer order management moved to customer-centric controllers/services.
+4. **C4 (done)** — checkout and customer order management moved to customer-centric controllers/services.
 5. **C5** — Sanctum-authenticated API and the customer SPA.
 
 ## Adding a new module

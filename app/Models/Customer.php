@@ -9,11 +9,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 class Customer extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\CustomerFactory> */
-    use HasActivityLog, HasFactory, Notifiable, SoftDeletes;
+    use HasActivityLog, HasApiTokens, HasFactory, Notifiable, SoftDeletes;
 
     /**
      * The named route a customer should land on after login or registration.

@@ -16,6 +16,7 @@ class CustomerOrderRepository implements CustomerOrderRepositoryInterface
     {
         return Order::query()
             ->where('customer_id', $customerId)
+            ->with(['items.medicine'])
             ->orderByDesc('created_at')
             ->get();
     }

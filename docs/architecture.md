@@ -88,7 +88,7 @@ The split lands in batches while the storefront stays on its existing Inertia pa
    dropped.
 3. **C3 (done)** — storefront controllers refactored into repository/service/resources.
 4. **C4 (done)** — checkout and customer order management moved to customer-centric controllers/services.
-5. **C5** — Sanctum-authenticated API and the customer SPA.
+5. **C5 (done)** — Sanctum-authenticated API (`/api/v1`) and customer SPA (`/spa`).
 
 ## Adding a new module
 

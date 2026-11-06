@@ -108,5 +108,8 @@ Route::post('/customers/contact', [ContactController::class, 'send'])
     ->middleware('throttle:5,1')
     ->name('contact');
 
+// Customer SPA Storefront (powered by /api/v1)
+Route::get('/spa', fn () => Inertia::render('customers/SpaApp'))->name('customer.spa');
+
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

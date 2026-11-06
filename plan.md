@@ -31,6 +31,7 @@ changing code, then follow the batch order.
 | `ea59e5d` | **C1**: `customers` table/model/factory, `customer` guard/provider/broker, `orders.customer_id` + backfill |
 | `b184fa0` | **C2**: Customer auth flows (`customer` guard, split login, password reset, email verification, drop `orders.user_id`, narrow `users.role`) |
 | `e42f9e5` | **C3**: Storefront refactor (`StorefrontRepository`, `StorefrontService`, `StorefrontController`, `ContactController`, resources) |
+| `05d028d` | **C4**: Orders/checkout + admin views (`CustomerOrderRepository`, `CustomerOrderService`, `CustomerOrderController`, remove `CustomerController`) |
 
 ### Uncommitted user work — do not touch or commit
 

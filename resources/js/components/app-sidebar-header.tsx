@@ -3,8 +3,7 @@ import { Breadcrumbs } from '@/components/breadcrumbs';
 import { Button } from '@/components/ui/button';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { type BreadcrumbItem as BreadcrumbItemType } from '@/types';
-import { Link } from '@inertiajs/react';
-import { ExternalLink, Receipt, Store } from 'lucide-react';
+import { ExternalLink, Store } from 'lucide-react';
 
 export function AppSidebarHeader({ breadcrumbs = [] }: { breadcrumbs?: BreadcrumbItemType[] }) {
     return (
@@ -27,18 +26,6 @@ export function AppSidebarHeader({ breadcrumbs = [] }: { breadcrumbs?: Breadcrum
                     <span>System Online</span>
                 </div>
 
-                {/* Quick Link: POS Terminal */}
-                <Link href="/cashier/pos">
-                    <Button
-                        size="sm"
-                        variant="outline"
-                        className="h-8 gap-1.5 border-teal-500/30 bg-teal-50/50 text-xs font-semibold text-teal-800 hover:bg-teal-100 hover:text-teal-900 dark:border-teal-800 dark:bg-teal-950/40 dark:text-teal-300 dark:hover:bg-teal-900/60"
-                    >
-                        <Receipt className="size-3.5 text-teal-600 dark:text-teal-400" />
-                        <span className="hidden sm:inline">POS Terminal</span>
-                    </Button>
-                </Link>
-
                 {/* Quick Link: Customer Storefront */}
                 <a
                     href="/customers"
@@ -48,7 +35,7 @@ export function AppSidebarHeader({ breadcrumbs = [] }: { breadcrumbs?: Breadcrum
                 >
                     <Button
                         size="sm"
-                        variant="ghost"
+                        variant="outline"
                         className="h-8 gap-1.5 text-xs text-muted-foreground hover:text-foreground"
                     >
                         <Store className="size-3.5" />

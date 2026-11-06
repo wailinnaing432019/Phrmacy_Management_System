@@ -189,11 +189,11 @@ export default function Dashboard({
                         {/* Quick Action Buttons */}
                         <div className="flex flex-wrap items-center gap-2.5">
                             <Link
-                                href="/cashier/pos"
+                                href="/sales"
                                 className="inline-flex items-center gap-2 rounded-xl bg-teal-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm shadow-teal-600/30 transition-all hover:bg-teal-700 hover:shadow-md"
                             >
-                                <Receipt className="size-4" />
-                                <span>POS Terminal</span>
+                                <ShoppingBag className="size-4" />
+                                <span>Sales History</span>
                             </Link>
 
                             <Link

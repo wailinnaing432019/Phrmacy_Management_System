@@ -275,121 +275,144 @@ export default function Index() {
 
     return (
         <AppLayout breadcrumbs={[{ title: 'Orders', href: '/orders' }]}>
-            <Head title="Orders" />
+            <Head title="Customer Orders" />
 
-            {/* Filters */}
-            <div className="flex items-center justify-between mb-4 gap-2 p-4">
-                <Input
-                    placeholder="Search by customer..."
-                    defaultValue={filters.search}
-                    onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                            handleFilterChange("search", (e.target as HTMLInputElement).value)
-                        }
-                    }}
-                    className="max-w-xs"
-                />
-                <Select
-                    value={filters.status || "all"}
-                    onValueChange={(value) =>
-                        handleFilterChange("status", value === "all" ? "" : value)
-                    }
-                >
-                    <SelectTrigger className="w-40">
-                        <SelectValue placeholder="Filter by status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all">All</SelectItem>
-                        <SelectItem value="pending">Pending</SelectItem>
-                        <SelectItem value="completed">Completed</SelectItem>
-                        <SelectItem value="cancelled">Cancelled</SelectItem>
-                    </SelectContent>
-                </Select>
-                <Input
-                    type="date"
-                    value={filters.date}
-                    onChange={(e) => handleFilterChange("date", e.target.value)}
-                    className="w-40"
-                />
-            </div>
+            <div className="flex h-full flex-1 flex-col gap-6 p-4 sm:p-6">
+                {/* Header */}
+                <div className="flex flex-col gap-1">
+                    <div className="flex items-center gap-2">
+                        <h1 className="text-2xl font-bold tracking-tight text-foreground">
+                            Customer Orders
+                        </h1>
+                        <span className="rounded-full bg-teal-500/10 px-2.5 py-0.5 text-xs font-bold text-teal-700 dark:text-teal-300">
+                            Page {orders.current_page} of {orders.last_page}
+                        </span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                        Track online customer orders, payment status, customer contacts, and invoices.
+                    </p>
+                </div>
 
-            {/* Table */}
-            <div className="rounded-md border p-4 shadow-2xl m-3">
-                <Table>
-                    <TableHeader>
-                        {table.getHeaderGroups().map((headerGroup) => (
-                            <TableRow key={headerGroup.id}>
-                                {headerGroup.headers.map((header) => (
-                                    <TableHead key={header.id}>
-                                        {header.isPlaceholder
-                                            ? null
-                                            : flexRender(
-                                                header.column.columnDef.header,
-                                                header.getContext()
-                                            )}
-                                    </TableHead>
+                {/* Filters */}
+                <div className="rounded-2xl border border-border/80 bg-card p-4 shadow-xs">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                        <Input
+                            placeholder="Search by customer name, order no..."
+                            defaultValue={filters.search}
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                    handleFilterChange("search", (e.target as HTMLInputElement).value)
+                                }
+                            }}
+                            className="flex-1 h-10 rounded-xl"
+                        />
+                        <Select
+                            value={filters.status || "all"}
+                            onValueChange={(value) =>
+                                handleFilterChange("status", value === "all" ? "" : value)
+                            }
+                        >
+                            <SelectTrigger className="w-full sm:w-44 h-10 rounded-xl">
+                                <SelectValue placeholder="Filter by status" />
+                            </SelectTrigger>
+                            <SelectContent className="rounded-xl shadow-md">
+                                <SelectItem value="all">All Statuses</SelectItem>
+                                <SelectItem value="pending">Pending</SelectItem>
+                                <SelectItem value="completed">Completed</SelectItem>
+                                <SelectItem value="cancelled">Cancelled</SelectItem>
+                            </SelectContent>
+                        </Select>
+                        <Input
+                            type="date"
+                            value={filters.date || ""}
+                            onChange={(e) => handleFilterChange("date", e.target.value)}
+                            className="w-full sm:w-44 h-10 rounded-xl"
+                        />
+                    </div>
+                </div>
+
+                {/* Table */}
+                <div className="rounded-2xl border border-border/80 bg-card shadow-xs overflow-hidden">
+                    <div className="overflow-x-auto">
+                        <Table>
+                            <TableHeader className="bg-muted/50">
+                                {table.getHeaderGroups().map((headerGroup) => (
+                                    <TableRow key={headerGroup.id} className="hover:bg-transparent">
+                                        {headerGroup.headers.map((header) => (
+                                            <TableHead key={header.id}>
+                                                {header.isPlaceholder
+                                                    ? null
+                                                    : flexRender(
+                                                        header.column.columnDef.header,
+                                                        header.getContext()
+                                                    )}
+                                            </TableHead>
+                                        ))}
+                                    </TableRow>
                                 ))}
-                            </TableRow>
-                        ))}
-                    </TableHeader>
-                    <TableBody>
-                        {table.getRowModel().rows.length ? (
-                            table.getRowModel().rows.map((row) => (
-                                <TableRow key={row.id}>
-                                    {row.getVisibleCells().map((cell) => (
-                                        <TableCell key={cell.id}>
-                                            {flexRender(
-                                                cell.column.columnDef.cell,
-                                                cell.getContext()
-                                            )}
+                            </TableHeader>
+                            <TableBody className="divide-y divide-border/60">
+                                {table.getRowModel().rows.length ? (
+                                    table.getRowModel().rows.map((row) => (
+                                        <TableRow key={row.id} className="hover:bg-muted/30 transition-colors">
+                                            {row.getVisibleCells().map((cell) => (
+                                                <TableCell key={cell.id}>
+                                                    {flexRender(
+                                                        cell.column.columnDef.cell,
+                                                        cell.getContext()
+                                                    )}
+                                                </TableCell>
+                                            ))}
+                                        </TableRow>
+                                    ))
+                                ) : (
+                                    <TableRow>
+                                        <TableCell colSpan={columns.length} className="py-12 text-center text-muted-foreground">
+                                            No customer orders found.
                                         </TableCell>
-                                    ))}
-                                </TableRow>
-                            ))
-                        ) : (
-                            <TableRow>
-                                <TableCell colSpan={columns.length} className="text-center">
-                                    No results.
-                                </TableCell>
-                            </TableRow>
-                        )}
-                    </TableBody>
-                </Table>
-            </div>
+                                    </TableRow>
+                                )}
+                            </TableBody>
+                        </Table>
+                    </div>
 
-            {/* Pagination */}
-            <div className="flex items-center justify-between mt-2 p-2">
-                <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() =>
-                        router.get(orders.prev_page_url!, filters, {
-                            preserveState: true,
-                            replace: true,
-                        })
-                    }
-                    disabled={!orders.prev_page_url}
-                >
-                    <ChevronLeft className="h-4 w-4 mr-2" /> Previous
-                </Button>
+                    {/* Pagination */}
+                    <div className="flex items-center justify-between border-t border-border/60 bg-muted/20 px-4 py-3 sm:px-6">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="rounded-lg h-8 text-xs"
+                            onClick={() =>
+                                router.get(orders.prev_page_url!, filters, {
+                                    preserveState: true,
+                                    replace: true,
+                                })
+                            }
+                            disabled={!orders.prev_page_url}
+                        >
+                            <ChevronLeft className="h-4 w-4 mr-1" /> Previous
+                        </Button>
 
-                <span>
-                    Page {orders.current_page} of {orders.last_page}
-                </span>
+                        <span className="text-xs text-muted-foreground">
+                            Page {orders.current_page} of {orders.last_page}
+                        </span>
 
-                <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() =>
-                        router.get(orders.next_page_url!, filters, {
-                            preserveState: true,
-                            replace: true,
-                        })
-                    }
-                    disabled={!orders.next_page_url}
-                >
-                    Next <ChevronRight className="h-4 w-4 ml-2" />
-                </Button>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="rounded-lg h-8 text-xs"
+                            onClick={() =>
+                                router.get(orders.next_page_url!, filters, {
+                                    preserveState: true,
+                                    replace: true,
+                                })
+                            }
+                            disabled={!orders.next_page_url}
+                        >
+                            Next <ChevronRight className="h-4 w-4 ml-1" />
+                        </Button>
+                    </div>
+                </div>
             </div>
         </AppLayout>
     )

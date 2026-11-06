@@ -152,9 +152,19 @@ export default function Index({ sales, filters }: { sales: SalePagination, filte
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={data.source === 'online' ? 'Online Orders' : 'Shop Sales'} />
 
-            <div className="flex flex-col gap-6 p-6">
+            <div className="flex flex-col gap-6 p-4 sm:p-6">
+                {/* Header */}
+                <div className="flex flex-col gap-1">
+                    <h1 className="text-2xl font-bold tracking-tight text-foreground">
+                        {data.source === 'online' ? 'Online Sales Records' : 'Shop Sales Records'}
+                    </h1>
+                    <p className="text-xs text-muted-foreground">
+                        Browse transaction records, inspect receipts, and export fiscal reports.
+                    </p>
+                </div>
+
                 {/* Filters & Source Selector */}
-                <div className="bg-white shadow-md rounded-lg p-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-6">
+                <div className="rounded-2xl border border-border/80 bg-card p-5 shadow-xs flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                     {/* Left-aligned filters */}
                     <div className="flex flex-col sm:flex-row sm:items-end gap-4">
                         <FilterBar
@@ -164,8 +174,8 @@ export default function Index({ sales, filters }: { sales: SalePagination, filte
                             endDate={filters?.end_date}
                         />
                         <div>
-                            <label htmlFor="source-select" className="block text-sm font-medium text-gray-700 mb-1">
-                                Source
+                            <label htmlFor="source-select" className="block text-xs font-semibold text-foreground mb-1">
+                                Sales Channel
                             </label>
                             <select
                                 id="source-select"
@@ -175,43 +185,35 @@ export default function Index({ sales, filters }: { sales: SalePagination, filte
                                     setData('source', source);
                                     router.visit(route('sales.index', { ...filters, source }), { preserveScroll: true });
                                 }}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-150 text-gray-700"
+                                className="w-full sm:w-44 px-3 py-2 border border-border bg-background rounded-xl shadow-xs text-xs font-medium text-foreground focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
                             >
-                                <option value="shop">Shop Sale</option>
-                                <option value="online">Online Sale</option>
+                                <option value="shop">Shop (POS)</option>
+                                <option value="online">Online (Storefront)</option>
                             </select>
                         </div>
                     </div>
 
                     {/* Right-aligned export buttons */}
-                    <div className="flex flex-col sm:flex-row sm:justify-end items-stretch gap-3 lg:gap-4 mt-4 lg:mt-0">
+                    <div className="flex items-center gap-2">
                         <Button
-                            className="flex-1 sm:flex-none bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-lg shadow-md transition-all duration-150"
+                            variant="outline"
+                            className="rounded-xl border-border px-3.5 py-2 text-xs font-semibold hover:bg-accent"
                             onClick={() => handleExport('pdf')}
                         >
-                            <span className="flex items-center gap-2 justify-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2h-8a2 2 0 01-2-2V4zm2 2a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm0 4a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h3a1 1 0 100-2H7z" clipRule="evenodd" />
-                                </svg>
-                                Export PDF
-                            </span>
+                            Export PDF
                         </Button>
                         <Button
-                            className="flex-1 sm:flex-none bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-lg shadow-md transition-all duration-150"
+                            variant="outline"
+                            className="rounded-xl border-border px-3.5 py-2 text-xs font-semibold hover:bg-accent"
                             onClick={() => handleExport('csv')}
                         >
-                            <span className="flex items-center gap-2 justify-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                    <path d="M10 2a8 8 0 100 16 8 8 0 000-16zM6.5 9A1.5 1.5 0 018 7.5h4A1.5 1.5 0 0113.5 9v2A1.5 1.5 0 0112 12.5H8A1.5 1.5 0 016.5 11V9z" />
-                                </svg>
-                                Export CSV
-                            </span>
+                            Export CSV
                         </Button>
                     </div>
                 </div>
 
                 {/* Data Table */}
-                <div className="bg-white shadow-md rounded-lg overflow-hidden">
+                <div className="rounded-2xl border border-border/80 bg-card shadow-xs overflow-hidden">
                     <DataTable
                         columns={columns}
                         nextpageurl={sales.next_page_url}

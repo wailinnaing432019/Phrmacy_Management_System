@@ -1,76 +1,153 @@
-import { Menubar, MenubarMenu, MenubarTrigger, MenubarContent, MenubarItem } from "@/components/ui/menubar";
-import { router, usePage } from "@inertiajs/react";
-import { Home, LayoutDashboard, Receipt, ShoppingCart, CircleUserRound, LogOut, Undo2 } from "lucide-react";
-import { Toaster } from "sonner";
+import AppearanceToggleDropdown from '@/components/appearance-dropdown';
+import AppLogoIcon from '@/components/app-logo-icon';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { useInitials } from '@/hooks/use-initials';
+import { type NavItem, type SharedData } from '@/types';
+import { Link, router, usePage } from '@inertiajs/react';
+import {
+    ChevronDown,
+    LayoutDashboard,
+    LogOut,
+    Receipt,
+    RotateCcw,
+    ShoppingCart,
+} from 'lucide-react';
 
-const cashierNavItems = [
+const cashierNavItems: NavItem[] = [
+    { title: 'POS Terminal', href: '/cashier/pos', icon: Receipt },
+    { title: 'Sale Records', href: '/cashier/sale', icon: ShoppingCart },
+    { title: 'Returns', href: '/returns', icon: RotateCcw },
     { title: 'Dashboard', href: '/cashier/dashboard', icon: LayoutDashboard },
-    { title: 'Sale', href: '/cashier/sale', icon: ShoppingCart },
-    { title: 'POS', href: '/cashier/pos', icon: Receipt },
-    { title: 'Returns', href: '/returns', icon: Undo2 },
 ];
 
 export default function CashierMenu() {
-    const { url, props } = usePage();
-    const userName = props.auth.user.name;
+    const { url, props } = usePage<SharedData>();
+    const getInitials = useInitials();
+    const user = props.auth?.user || { name: 'Cashier', email: 'cashier@pharmacy.com' };
 
     const currentPath = typeof url === 'string' ? url : window.location.pathname;
 
+    const isLinkActive = (href: string) => {
+        if (href === '/cashier/dashboard') {
+            return currentPath === href;
+        }
+        return currentPath === href || currentPath.startsWith(href + '/');
+    };
+
+    const handleLogout = () => {
+        router.post(route('logout'));
+    };
+
     return (
-        <Menubar className="w-full flex justify-between items-center px-4 py-4 border-b bg-white shadow">
-            {/* Home */}
+        <header className="sticky top-0 z-40 w-full border-b border-border/80 bg-background/95 backdrop-blur-md shadow-xs">
+            <div className="mx-auto flex h-16 w-full items-center justify-between px-4 sm:px-6">
+                {/* Brand Logo */}
+                <div className="flex items-center gap-6">
+                    <Link href="/cashier/pos" className="flex items-center gap-2.5">
+                        <div className="flex aspect-square size-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-teal-600 to-emerald-600 text-white shadow-sm shadow-teal-600/25">
+                            <AppLogoIcon className="size-5" />
+                        </div>
+                        <div className="hidden sm:grid text-left leading-tight">
+                            <div className="flex items-center gap-1.5">
+                                <span className="font-bold text-base tracking-tight text-foreground">HelixPharma</span>
+                                <span className="rounded bg-teal-500/10 px-1.5 py-0.5 text-[10px] font-bold uppercase text-teal-700 dark:text-teal-300">
+                                    Cashier POS
+                                </span>
+                            </div>
+                            <span className="text-[11px] text-muted-foreground">Checkout & Returns</span>
+                        </div>
+                    </Link>
 
-            <MenubarMenu>
-                <a href="/cashier/dashboard">
-                    <MenubarTrigger
-                        className={`flex items-center space-x-2 px-2 py-1 rounded  
-                            }`}
-                    >
-                        {/* <Home className="h-5 w-5" /> */}
-                        <img src="/icon.png" className="h-6 w-6" />
-                        <span><img src="/helixpharma-logo.png" alt="" className="w-[80px] h-[25px]" /></span>
-                    </MenubarTrigger>
-                </a>
-            </MenubarMenu>
+                    {/* Navigation Items */}
+                    <nav className="flex items-center gap-1">
+                        {cashierNavItems.map((item) => {
+                            const Icon = item.icon;
+                            const active = isLinkActive(item.href);
 
-            {/* Nav Items */}
-            <div className="flex items-center space-x-4">
-                <Toaster position="top-right" richColors />
-                {cashierNavItems.map((item) => {
-                    const Icon = item.icon;
-                    const isActive = currentPath === item.href || currentPath.startsWith(item.href + '/');
-
-                    return (
-                        <MenubarMenu key={item.href}>
-                            <a href={item.href}>
-                                <MenubarTrigger
-                                    className={`flex items-center space-x-2 px-2 py-1 rounded ${isActive
-                                        ? 'bg-primary text-primary-foreground'
-                                        : 'hover:bg-gray-100'
-                                        }`}
+                            return (
+                                <Link
+                                    key={item.href}
+                                    href={item.href}
+                                    className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition-all ${
+                                        active
+                                            ? 'bg-teal-500/15 text-teal-800 dark:bg-teal-950/60 dark:text-teal-300 shadow-xs'
+                                            : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+                                    }`}
                                 >
-                                    <Icon className="h-5 w-5" />
-                                    <span>{item.title}</span>
-                                </MenubarTrigger>
-                            </a>
-                        </MenubarMenu>
-                    );
-                })}
+                                    {Icon && (
+                                        <Icon
+                                            className={`size-4 ${
+                                                active ? 'text-teal-600 dark:text-teal-400' : 'text-muted-foreground/80'
+                                            }`}
+                                        />
+                                    )}
+                                    <span className="hidden md:inline">{item.title}</span>
+                                </Link>
+                            );
+                        })}
+                    </nav>
+                </div>
 
-                {/* User Menu */}
-                <MenubarMenu>
-                    <MenubarTrigger className="flex items-center space-x-2 px-2 py-1 rounded hover:bg-gray-100">
-                        <CircleUserRound className="h-5 w-5" />
-                        <span>{userName}</span>
-                    </MenubarTrigger>
-                    <MenubarContent>
-                        <MenubarItem onClick={() => router.post('/logout')}>
-                            <LogOut className="h-4 w-4 mr-2" />
-                            Logout
-                        </MenubarItem>
-                    </MenubarContent>
-                </MenubarMenu>
+                {/* Right Tools */}
+                <div className="flex items-center gap-2.5 sm:gap-4">
+                    <div className="hidden lg:flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1 text-[11px] font-medium text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
+                        <span className="relative flex size-2">
+                            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                            <span className="relative inline-flex size-2 rounded-full bg-emerald-500" />
+                        </span>
+                        <span>Register Active</span>
+                    </div>
+
+                    <AppearanceToggleDropdown />
+
+                    <div className="h-5 w-px bg-border" />
+
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button
+                                variant="ghost"
+                                className="flex items-center gap-2 p-1.5 hover:bg-accent rounded-lg"
+                            >
+                                <Avatar className="size-8 overflow-hidden rounded-lg border border-border">
+                                    <AvatarFallback className="rounded-lg bg-gradient-to-br from-teal-500 to-emerald-600 text-white font-semibold text-xs">
+                                        {getInitials(user.name)}
+                                    </AvatarFallback>
+                                </Avatar>
+                                <div className="hidden sm:grid text-left text-xs leading-tight">
+                                    <span className="truncate font-semibold text-foreground">{user.name}</span>
+                                    <span className="text-[10px] text-muted-foreground">Cashier</span>
+                                </div>
+                                <ChevronDown className="size-3.5 text-muted-foreground" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-48 rounded-xl shadow-md">
+                            <DropdownMenuLabel className="font-normal">
+                                <div className="flex flex-col space-y-1">
+                                    <p className="text-sm font-semibold">{user.name}</p>
+                                    <p className="text-xs text-muted-foreground">{user.email}</p>
+                                </div>
+                            </DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                                onClick={handleLogout}
+                                className="cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive"
+                            >
+                                <LogOut className="mr-2 size-4" />
+                                <span>Log out</span>
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
             </div>
-        </Menubar>
+        </header>
     );
 }

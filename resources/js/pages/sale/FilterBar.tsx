@@ -20,9 +20,9 @@ export default function FilterBar({ currentMonth, currentYear }) {
     };
 
     return (
-        <div className="flex flex-col sm:flex-row gap-4 sm:items-end">
+        <div className="flex flex-col sm:flex-row gap-3 sm:items-end">
             <div>
-                <label htmlFor="month-select" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="month-select" className="block text-xs font-semibold text-foreground mb-1">
                     Select Month
                 </label>
                 <input
@@ -30,14 +30,13 @@ export default function FilterBar({ currentMonth, currentYear }) {
                     type="month"
                     value={monthYear}
                     onChange={(e) => setMonthYear(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-150 text-gray-700"
+                    className="w-full sm:w-44 px-3 py-2 border border-border bg-background rounded-xl shadow-xs text-xs font-medium text-foreground focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
                 />
             </div>
 
-            {/* The button is now a primary, standalone element */}
             <Button
                 onClick={applyMonthYearFilter}
-                className="w-full sm:w-auto px-5 py-2.5 font-semibold text-white bg-blue-600 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-150"
+                className="h-10 rounded-xl px-4 text-xs font-semibold"
             >
                 Apply Filter
             </Button>

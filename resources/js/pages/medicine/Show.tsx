@@ -1,148 +1,216 @@
 import React, { useState } from 'react';
 import AppLayout from '@/layouts/app-layout';
-import { Link, router } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { BreadcrumbItem } from '@/types';
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogFooter,
-    DialogTrigger
-} from "@/components/ui/dialog";
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { ArrowLeft, Calendar, DollarSign, Package, Pencil, Pill, Tag } from 'lucide-react';
 import EditPurchasedItemModal from './PurchasedItemUpdate';
 
-
-export default function Show({ medicine, purchasedItems }) {
+export default function Show({ medicine, purchasedItems = [] }: { medicine: any; purchasedItems: any[] }) {
     const [isOpen, setIsOpen] = useState(false);
     const [editData, setEditData] = useState<any>(null);
 
-    function isExpired(expDate) {
-        if (!expDate) return false; // no date means no expiration
-
+    function isExpired(expDate: string) {
+        if (!expDate) return false;
         const today = new Date();
-        const exp = new Date(expDate + "T23:59:59"); // ensures full day check
-
-        return exp < today; // expired if date is before today
+        const exp = new Date(expDate + 'T23:59:59');
+        return exp < today;
     }
 
-    function openModal(batch) {
-        setEditData({ ...batch }); // Clone batch data to avoid direct mutation
+    function openModal(batch: any) {
+        setEditData({ ...batch });
         setIsOpen(true);
     }
 
-    function closeModal() {
-        setIsOpen(false);
-        setEditData(null);
-    }
-
-    function handleChange(e) {
-        setEditData({ ...editData, [e.target.name]: e.target.value });
-    }
-
-    function handleSubmit(e) {
-        e.preventDefault();
-        router.put(`/purchased-items/${editData.id}`, editData, {
-            onSuccess: () => closeModal()
-        });
-    }
-
     return (
-        <AppLayout breadcrumbs={[
-            { title: 'Medicines', href: '/medicines' },
-            { title: medicine.name }
-        ]}>
-            <div className="p-8 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl shadow-lg">
-                <div className="flex flex-col md:flex-row gap-10">
-                    {/* Left Column: Medicine Details */}
-                    <div className="flex-1 bg-white rounded-lg shadow p-6">
-                        <div className="flex flex-col items-center">
-                            <img
-                                src={medicine.image}
-                                alt={medicine.name}
-                                className="w-40 h-40 object-cover rounded-lg mb-4 border border-purple-200"
-                            />
-                            <h2 className="text-3xl font-bold text-purple-800 mb-2">{medicine.name}</h2>
-                            <span className="inline-block bg-purple-200 text-purple-800 px-3 py-1 rounded-full text-sm mb-4">
-                                {medicine.category}
-                            </span>
-                        </div>
-                        <div className="space-y-2 mt-4">
-                            <p><span className="font-semibold text-gray-700">Barcode:</span> {medicine.medicine_barcode}</p>
-                            <p><span className="font-semibold text-gray-700">Selling Price:</span> <span className="text-purple-700 font-bold">{medicine.selling_price}</span></p>
-                            <p><span className="font-semibold text-gray-700">Stock Limit:</span> {medicine.stock_limit}</p>
-                            <p><span className="font-semibold text-gray-700">Sellable Qty:</span> {medicine.sellable_qty}</p>
-                            <p><span className="font-semibold text-gray-700">Description:</span> {medicine.description}</p>
-                            <p><span className="font-semibold text-gray-700">Created At:</span> {medicine.created_at}</p>
-                            <p><span className="font-semibold text-gray-700">Updated At:</span> {medicine.updated_at}</p>
+        <AppLayout
+            breadcrumbs={[
+                { title: 'Medicines', href: '/medicines' },
+                { title: medicine.name, href: route('medicines.show', medicine.id) },
+            ]}
+        >
+            <Head title={`${medicine.name} — Details`} />
+
+            <div className="flex h-full flex-1 flex-col gap-6 p-4 sm:p-6">
+                {/* Header */}
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-border/60 pb-4">
+                    <div className="flex items-center gap-3">
+                        <Link href={route('medicines.index')}>
+                            <Button
+                                variant="outline"
+                                size="icon"
+                                className="size-9 rounded-xl text-muted-foreground hover:text-foreground"
+                            >
+                                <ArrowLeft className="size-4" />
+                            </Button>
+                        </Link>
+                        <div>
+                            <div className="flex items-center gap-2">
+                                <h1 className="text-2xl font-bold tracking-tight text-foreground">
+                                    {medicine.name}
+                                </h1>
+                                <span className="rounded-full bg-teal-500/10 px-2.5 py-0.5 text-xs font-bold text-teal-700 dark:text-teal-300">
+                                    {medicine.category}
+                                </span>
+                            </div>
+                            <p className="text-xs text-muted-foreground">
+                                Detailed pharmaceutical profile, inventory movements, and batch records.
+                            </p>
                         </div>
                     </div>
 
-                    {/* Right Column: Purchased Batches Table */}
-                    <div className="flex-1 bg-white rounded-lg shadow p-6">
-                        <h3 className="text-2xl font-semibold text-purple-800 mb-4">Purchased Batches</h3>
-                        <div className="overflow-x-auto">
-                            <Table className="w-full text-left border border-purple-200 rounded-lg">
-                                <TableHeader>
-                                    <TableRow className="bg-purple-100 text-purple-800">
-                                        <TableHead className="px-4 py-2">Purchased Qty</TableHead>
-                                        <TableHead className="px-4 py-2">Sold Qty</TableHead>
-                                        <TableHead className="px-4 py-2">Available Qty</TableHead>
-                                        <TableHead className="px-4 py-2">Purchased Price</TableHead>
-                                        <TableHead className="px-4 py-2">MFD Date</TableHead>
-                                        <TableHead className="px-4 py-2">EXP Date</TableHead>
-                                        <TableHead className="px-4 py-2">Status</TableHead>
-                                        <TableHead className="px-4 py-2">Action</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {purchasedItems.map(batch => {
-                                        const expired = batch.qty !== 0 && isExpired(batch.exp_date);
-                                        return (
-                                            <TableRow
-                                                key={batch.id}
-                                                className={`border-b border-purple-100 hover:bg-purple-50 ${expired ? 'bg-red-100' : ''}`}
-                                            >
-
-                                                <TableCell className="px-4 py-2">{batch.qty}</TableCell>
-                                                <TableCell className="px-4 py-2">{batch.sold_qty}</TableCell>
-                                                <TableCell className="px-4 py-2 font-bold text-green-700">{batch.available_qty}</TableCell>
-                                                <TableCell className="px-4 py-2">MMK - {batch.unit_price}</TableCell>
-                                                <TableCell className="px-4 py-2">{batch.mfd_date}</TableCell>
-                                                <TableCell className="px-4 py-2">{batch.exp_date}</TableCell>
-                                                <TableCell className="px-4 py-2">
-                                                    {batch.available_qty > 0 ? (
-                                                        expired ? (
-                                                            <span className="px-2 py-1 rounded bg-red-500 text-white text-xs">Expired</span>
-                                                        ) : (
-                                                            <span className="px-2 py-1 rounded bg-green-500 text-white text-xs">Valid</span>
-                                                        )
-                                                    ) : (
-                                                        <span className="px-2 py-1 rounded bg-gray-400 text-white text-xs">Out of Stock</span>
-                                                    )}
-                                                </TableCell>
-                                                <TableCell className="px-4 py-2">
-                                                    <button
-                                                        onClick={() => openModal(batch)}
-                                                        className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-xs"
-                                                    >
-                                                        Edit
-                                                    </button>
-                                                </TableCell>
-                                            </TableRow>
-                                        );
-                                    })}
-                                </TableBody>
-                            </Table>
-                        </div>
-                    </div>
+                    <Link href={route('medicines.edit', medicine.id)}>
+                        <Button className="rounded-xl bg-teal-600 px-4 text-xs font-semibold text-white shadow-sm shadow-teal-600/30 hover:bg-teal-700">
+                            <Pencil className="mr-1.5 size-3.5" />
+                            Edit Specifications
+                        </Button>
+                    </Link>
                 </div>
 
-                <div className="mt-10 text-center">
-                    <Link href="/medicines" className="inline-block px-6 py-2 bg-purple-700 text-white rounded hover:bg-purple-800 transition">
-                        ← Back to Medicines
-                    </Link>
+                <div className="grid gap-6 lg:grid-cols-3">
+                    {/* Left Column: Medicine Profile */}
+                    <Card className="rounded-2xl border-border/80 shadow-xs lg:col-span-1">
+                        <CardHeader className="pb-3 border-b border-border/60 text-center">
+                            <div className="mx-auto size-32 overflow-hidden rounded-2xl border border-border shadow-xs bg-muted/30">
+                                {medicine.image ? (
+                                    <img
+                                        src={medicine.image.startsWith('http') ? medicine.image : `/storage/${medicine.image}`}
+                                        alt={medicine.name}
+                                        className="h-full w-full object-cover"
+                                    />
+                                ) : (
+                                    <div className="flex h-full w-full items-center justify-center text-muted-foreground/60">
+                                        <Pill className="size-12" />
+                                    </div>
+                                )}
+                            </div>
+                            <CardTitle className="text-lg font-bold text-foreground mt-3">
+                                {medicine.name}
+                            </CardTitle>
+                            <CardDescription className="text-xs">
+                                Category: {medicine.category || 'General'}
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-3 pt-4 text-xs">
+                            <div className="flex justify-between py-1.5 border-b border-border/50">
+                                <span className="font-medium text-muted-foreground">Barcode</span>
+                                <span className="font-mono font-bold text-foreground">{medicine.medicine_barcode || '—'}</span>
+                            </div>
+                            <div className="flex justify-between py-1.5 border-b border-border/50">
+                                <span className="font-medium text-muted-foreground">Retail Selling Price</span>
+                                <span className="font-bold text-teal-700 dark:text-teal-400 font-mono">
+                                    {Number(medicine.selling_price).toLocaleString()} MMK
+                                </span>
+                            </div>
+                            <div className="flex justify-between py-1.5 border-b border-border/50">
+                                <span className="font-medium text-muted-foreground">Sellable Stock</span>
+                                <span className="font-bold text-foreground font-mono">{medicine.sellable_qty} units</span>
+                            </div>
+                            <div className="flex justify-between py-1.5 border-b border-border/50">
+                                <span className="font-medium text-muted-foreground">Low Stock Threshold</span>
+                                <span className="font-mono text-muted-foreground">{medicine.stock_limit} units</span>
+                            </div>
+                            {medicine.description && (
+                                <div className="pt-2">
+                                    <span className="font-medium text-muted-foreground block mb-1">Description</span>
+                                    <p className="text-foreground leading-relaxed bg-muted/30 p-2.5 rounded-xl border border-border/60">
+                                        {medicine.description}
+                                    </p>
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
+
+                    {/* Right Column: Purchased Batches Table */}
+                    <Card className="rounded-2xl border-border/80 shadow-xs lg:col-span-2">
+                        <CardHeader className="pb-3 border-b border-border/60">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <CardTitle className="text-base font-bold text-foreground">
+                                        Purchased Inventory Batches
+                                    </CardTitle>
+                                    <CardDescription className="text-xs">
+                                        Batch acquisition dates, expiry checks, and current availability.
+                                    </CardDescription>
+                                </div>
+                                <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-semibold text-muted-foreground">
+                                    {purchasedItems.length} batches
+                                </span>
+                            </div>
+                        </CardHeader>
+                        <CardContent className="p-0">
+                            <div className="overflow-x-auto">
+                                <Table>
+                                    <TableHeader className="bg-muted/50">
+                                        <TableRow className="hover:bg-transparent">
+                                            <TableHead>Purchased</TableHead>
+                                            <TableHead>Sold</TableHead>
+                                            <TableHead>Available</TableHead>
+                                            <TableHead>Cost Price</TableHead>
+                                            <TableHead>EXP Date</TableHead>
+                                            <TableHead>Status</TableHead>
+                                            <TableHead className="text-right pr-4">Action</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody className="divide-y divide-border/60">
+                                        {purchasedItems.length > 0 ? (
+                                            purchasedItems.map((batch) => {
+                                                const expired = batch.qty !== 0 && isExpired(batch.exp_date);
+
+                                                return (
+                                                    <TableRow key={batch.id} className="hover:bg-muted/30 transition-colors">
+                                                        <TableCell className="font-mono text-xs">{batch.qty}</TableCell>
+                                                        <TableCell className="font-mono text-xs text-muted-foreground">{batch.sold_qty}</TableCell>
+                                                        <TableCell className="font-mono text-xs font-bold text-teal-700 dark:text-teal-400">
+                                                            {batch.available_qty}
+                                                        </TableCell>
+                                                        <TableCell className="font-mono text-xs">
+                                                            {Number(batch.unit_price).toLocaleString()} MMK
+                                                        </TableCell>
+                                                        <TableCell className="text-xs">{batch.exp_date || '—'}</TableCell>
+                                                        <TableCell>
+                                                            {batch.available_qty > 0 ? (
+                                                                expired ? (
+                                                                    <span className="inline-flex rounded-full bg-rose-50 px-2 py-0.5 text-[10px] font-bold text-rose-700 border border-rose-200 dark:bg-rose-950/40 dark:text-rose-400">
+                                                                        Expired
+                                                                    </span>
+                                                                ) : (
+                                                                    <span className="inline-flex rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400">
+                                                                        Valid
+                                                                    </span>
+                                                                )
+                                                            ) : (
+                                                                <span className="inline-flex rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+                                                                    Out of Stock
+                                                                </span>
+                                                            )}
+                                                        </TableCell>
+                                                        <TableCell className="text-right pr-4">
+                                                            <Button
+                                                                size="sm"
+                                                                variant="ghost"
+                                                                onClick={() => openModal(batch)}
+                                                                className="h-7 text-xs rounded-lg"
+                                                            >
+                                                                Edit Batch
+                                                            </Button>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                );
+                                            })
+                                        ) : (
+                                            <TableRow>
+                                                <TableCell colSpan={7} className="py-10 text-center text-muted-foreground">
+                                                    No purchased batches recorded for this medicine.
+                                                </TableCell>
+                                            </TableRow>
+                                        )}
+                                    </TableBody>
+                                </Table>
+                            </div>
+                        </CardContent>
+                    </Card>
                 </div>
             </div>
 
@@ -153,7 +221,6 @@ export default function Show({ medicine, purchasedItems }) {
                 editData={editData}
                 setEditData={setEditData}
             />
-
         </AppLayout>
     );
 }

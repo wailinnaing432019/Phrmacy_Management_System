@@ -54,11 +54,6 @@ const adminNavGroups: NavGroup[] = [
         title: 'Sales & Operations',
         items: [
             {
-                title: 'POS Terminal',
-                href: '/cashier/pos',
-                icon: Receipt,
-            },
-            {
                 title: 'Sales History',
                 href: '/sales',
                 icon: ShoppingCart,

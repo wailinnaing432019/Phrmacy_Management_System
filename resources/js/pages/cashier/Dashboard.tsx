@@ -49,10 +49,10 @@ const Dashboard: React.FC<DashboardProps> = ({
     medicine_alerts,
 }) => {
     return (
-        <div className="min-h-screen bg-gray-100">
-            <Head title="POS" />
+        <div className="min-h-screen bg-background text-foreground flex flex-col">
+            <Head title="Cashier Dashboard" />
             <CashierMenu />
-            <div className="flex h-full flex-1 flex-col gap-6 rounded-xl p-6  overflow-auto">
+            <div className="flex h-full flex-1 flex-col gap-6 p-4 sm:p-6 overflow-auto">
                 {/* Summary Cards */}
 
 

@@ -14,7 +14,7 @@ changing code, then follow the batch order.
 ## 1. Status snapshot
 
 - Branch: `build-upd`
-- Last commit: `ea59e5d feat(customer): add customer table, model, guard, and order linkage`
+- Last commit: `100ff5d feat(api): customer api v1 with sanctum session auth and customer spa - C5`
 - Pint: clean
 - `npm run build`: green
 - MySQL must be running. If Laragon is running, it is already started; otherwise see
@@ -32,6 +32,7 @@ changing code, then follow the batch order.
 | `b184fa0` | **C2**: Customer auth flows (`customer` guard, split login, password reset, email verification, drop `orders.user_id`, narrow `users.role`) |
 | `e42f9e5` | **C3**: Storefront refactor (`StorefrontRepository`, `StorefrontService`, `StorefrontController`, `ContactController`, resources) |
 | `05d028d` | **C4**: Orders/checkout + admin views (`CustomerOrderRepository`, `CustomerOrderService`, `CustomerOrderController`, remove `CustomerController`) |
+| `100ff5d` | **C5**: Customer API v1 + Sanctum session auth + Customer SPA (`/spa`) |
 
 ### Uncommitted user work — do not touch or commit
 

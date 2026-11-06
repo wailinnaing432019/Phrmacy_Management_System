@@ -25,6 +25,11 @@ interface DashboardRepositoryInterface
     public function topMedicines(): Collection;
 
     /**
+     * @return array<int, int>
+     */
+    public function topSellingMedicineIds(int $limit = 9): array;
+
+    /**
      * @return Collection<int, array{medicine_id: int, name: string, stock: int, status: string}>
      */
     public function medicineAlerts(): Collection;

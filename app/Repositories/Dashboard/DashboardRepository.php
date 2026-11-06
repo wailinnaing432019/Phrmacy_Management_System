@@ -117,6 +117,33 @@ class DashboardRepository implements DashboardRepositoryInterface
             ->values();
     }
 
+    public function topSellingMedicineIds(int $limit = 9): array
+    {
+        $online = OrderItem::query()
+            ->whereHas('medicine')
+            ->select('medicine_id', DB::raw('SUM(qty * price) as sales'))
+            ->groupBy('medicine_id');
+
+        $shop = SaleItem::query()
+            ->whereHas('medicine')
+            ->select('medicine_id', DB::raw('SUM(subtotal) as sales'))
+            ->groupBy('medicine_id');
+
+        return $online
+            ->unionAll($shop)
+            ->get()
+            ->groupBy('medicine_id')
+            ->map(fn (Collection $items) => [
+                'id' => (int) $items->first()->medicine_id,
+                'sales' => (float) $items->sum('sales'),
+            ])
+            ->sortByDesc('sales')
+            ->take($limit)
+            ->pluck('id')
+            ->values()
+            ->all();
+    }
+
     public function medicineAlerts(): Collection
     {
         $lowStock = PurchasedItem::query()

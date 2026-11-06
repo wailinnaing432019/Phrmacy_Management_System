@@ -23,8 +23,8 @@ export default function Cart() {
     const [cart, setCart] = useState(getInitialCart);
     const [address, setAddress] = useState('');
     const [phone, setPhone] = useState('');
-    const [name, setName] = useState(auth.user?.name || 'No name');
-    const [email, setEmail] = useState(auth.user?.email || '');
+    const [name, setName] = useState(auth.customer?.name || auth.user?.name || 'No name');
+    const [email, setEmail] = useState(auth.customer?.email || auth.user?.email || '');
 
     useEffect(() => {
         localStorage.setItem('cart', JSON.stringify(cart));

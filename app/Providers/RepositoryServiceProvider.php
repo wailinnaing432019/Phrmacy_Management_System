@@ -18,6 +18,8 @@ use App\Repositories\Sale\SaleRepository;
 use App\Repositories\Sale\SaleRepositoryInterface;
 use App\Repositories\SaleReturn\SaleReturnRepository;
 use App\Repositories\SaleReturn\SaleReturnRepositoryInterface;
+use App\Repositories\Storefront\StorefrontRepository;
+use App\Repositories\Storefront\StorefrontRepositoryInterface;
 use App\Repositories\Supplier\SupplierRepository;
 use App\Repositories\Supplier\SupplierRepositoryInterface;
 use App\Repositories\User\UserRepository;
@@ -40,6 +42,7 @@ class RepositoryServiceProvider extends ServiceProvider
         PurchasedItemRepositoryInterface::class => PurchasedItemRepository::class,
         SaleRepositoryInterface::class => SaleRepository::class,
         SaleReturnRepositoryInterface::class => SaleReturnRepository::class,
+        StorefrontRepositoryInterface::class => StorefrontRepository::class,
         SupplierRepositoryInterface::class => SupplierRepository::class,
         UserRepositoryInterface::class => UserRepository::class,
     ];

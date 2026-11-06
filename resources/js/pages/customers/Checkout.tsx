@@ -10,8 +10,8 @@ export default function CheckoutPage() {
     const [cart, setCart] = useState<any[]>([]);
     const { auth } = usePage().props;
     const [form, setForm] = useState({
-        name: auth?.user.name || "",
-        email: auth?.user.email || "",
+        name: auth?.customer?.name || auth?.user?.name || "",
+        email: auth?.customer?.email || auth?.user?.email || "",
         phone: "",
         address: "",
         payment_method: "",

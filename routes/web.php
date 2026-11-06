@@ -3,6 +3,7 @@
 use App\Http\Controllers\BarcodeController;
 use App\Http\Controllers\CashierController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GoogleController;
@@ -14,6 +15,7 @@ use App\Http\Controllers\POSController;
 use App\Http\Controllers\PurchasedItemController;
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\SaleReturnController;
+use App\Http\Controllers\StorefrontController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -98,11 +100,11 @@ Route::middleware(['customer', 'customer.verified'])->group(function () {
 });
 
 // Public storefront routes
-Route::get('/customers', [CustomerController::class, 'index'])->name('customer.index');
-Route::get('/customers/products', [CustomerController::class, 'products'])->name('customers.products');
-Route::get('/customers/product/{medicine}', [CustomerController::class, 'product'])->name('customers.product');
-Route::get('/customers/cart', [CustomerController::class, 'cart'])->name('customer.cart');
-Route::post('/customers/contact', [CustomerController::class, 'send'])
+Route::get('/customers', [StorefrontController::class, 'index'])->name('customer.index');
+Route::get('/customers/products', [StorefrontController::class, 'products'])->name('customers.products');
+Route::get('/customers/product/{medicine}', [StorefrontController::class, 'product'])->name('customers.product');
+Route::get('/customers/cart', [StorefrontController::class, 'cart'])->name('customer.cart');
+Route::post('/customers/contact', [ContactController::class, 'send'])
     ->middleware('throttle:5,1')
     ->name('contact');
 

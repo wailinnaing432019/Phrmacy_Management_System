@@ -29,6 +29,7 @@ changing code, then follow the batch order.
 | `22538b1` | Transactions: Sale/POS, SaleReturn, Order, Invoice, Dashboard, User, PurchasedItem |
 | `661f5ac` | Cleanup: removed 5 unreferenced controllers, added `docs/architecture.md` |
 | `ea59e5d` | **C1**: `customers` table/model/factory, `customer` guard/provider/broker, `orders.customer_id` + backfill |
+| `b184fa0` | **C2**: Customer auth flows (`customer` guard, split login, password reset, email verification, drop `orders.user_id`, narrow `users.role`) |
 
 ### Uncommitted user work — do not touch or commit
 
@@ -173,49 +174,13 @@ The current `AuthenticatedSessionController::create()` renders `customers/LoginF
 
 ---
 
-### C3 — Storefront refactor
+### C3 — Storefront refactor (done)
 
-Extract the ~431-line `CustomerController` storefront half into repositories/services/
-resources without changing any page or UI behavior.
-
-**Target split**
-
-- `StorefrontController` — `index`, `products`, `product`, `cart`
-- `ContactController` — `send` (contact mail)
-- `CustomerOrderController` — checkout/show/my-orders (may move to C4 if C2 already covers it)
-- Auth methods (`login`, `register`) are deleted; they now live in C2 auth controllers.
-
-**Layers**
-
-- `app/Repositories/Storefront/StorefrontRepository.php` + interface:
-  - paginated available medicines with search/category/sort;
-  - featured/latest medicines;
-  - product lookup with category;
-  - categories for filters;
-  - top-selling medicine IDs.
-- `app/Services/Storefront/StorefrontService.php`:
-  - composes filters and pagination;
-  - reuses the shared top-selling logic already in `DashboardRepository` (do not duplicate
-    the `OrderItem` union `SaleItem` query again).
-- `app/Http/Resources/Storefront/`:
-  - `MedicineCardResource` (id, name, description, selling_price, image URL, category, qty,
-    stock_limit, medicine_barcode);
-  - `ProductDetailResource` (same plus created_at/updated_at in `d-m-Y`);
-  - `CategoryOptionResource` (id, name).
-- Verify and remove unrouted dead methods (`home`, `liked`) or add routes if the pages are
-  actually used. Check `resources/js/pages/customers/` before deleting.
-- Bind the repository in `RepositoryServiceProvider`.
-
-**Acceptance criteria**
-
-- No Eloquent query remains in storefront controllers.
-- `CustomerController.php` is deleted or reduced to a compatibility shim.
-- All existing storefront routes/URLs/route names unchanged.
-- Pint clean, `npm run build` passes, one commit.
+Extract the storefront half into repositories/services/resources without changing any page or UI behavior.
 
 ---
 
-### C4 — Orders/checkout + admin views
+### C4 — Orders/checkout + admin views (next)
 
 Finish moving orders from the legacy user relationship to `Customer`.
 

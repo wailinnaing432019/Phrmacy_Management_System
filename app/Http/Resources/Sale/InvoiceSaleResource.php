@@ -25,6 +25,7 @@ class InvoiceSaleResource extends JsonResource
             'refund_amount' => (float) $this->refund_amount,
             'refunded_total' => (float) $this->refunded_total,
             'payment_method' => $this->payment_method,
+            'cashier_name' => $this->user?->name ?? 'Staff',
             'created_at' => $this->created_at,
             'items' => $this->items->map(fn ($item) => [
                 'id' => $item->id,

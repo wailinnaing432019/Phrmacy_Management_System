@@ -702,3 +702,4 @@ export default function SiteContentIndex({ contents }: Props) {
         </AppLayout>
     );
 }
+

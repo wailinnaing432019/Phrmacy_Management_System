@@ -1,32 +1,26 @@
 import TextLink from '@/components/text-link';
 import { Head, usePage } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
-import CustomerLayout from '@/layouts/customer-layout';
 import CashierMenu from '@/layouts/cashier-menu';
 
 function ForbiddenContent() {
     const { auth } = usePage().props;
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen text-center space-y-4">
-            <h1 className="text-6xl font-bold text-red-600">403</h1>
-            <p className="text-xl">You do not have permission to access this page.</p>
+        <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-4 p-6">
+            <h1 className="text-6xl font-bold text-rose-600">403</h1>
+            <p className="text-xl font-semibold text-slate-800">Access Denied</p>
+            <p className="text-sm text-slate-500 max-w-sm">You do not have permission to access this resource or page.</p>
 
             {auth?.user?.role === "admin" && (
-                <TextLink href={route('dashboard')} className="btn bg-red-500 p-2 rounded-xl">
-                    Go Back
+                <TextLink href={route('dashboard')} className="px-4 py-2 bg-teal-600 text-white rounded-lg text-sm font-semibold hover:bg-teal-700">
+                    Back to Dashboard
                 </TextLink>
             )}
 
             {auth?.user?.role === "cashier" && (
-                <TextLink href={route('cashier.pos')} className="btn bg-red-500 p-2 rounded-xl">
-                    Go Back
-                </TextLink>
-            )}
-
-            {auth?.user?.role === "user" && (
-                <TextLink href={route('customer.index')} className="btn bg-red-500 p-2 rounded-xl">
-                    Go Back
+                <TextLink href={route('cashier.pos')} className="px-4 py-2 bg-teal-600 text-white rounded-lg text-sm font-semibold hover:bg-teal-700">
+                    Back to POS Terminal
                 </TextLink>
             )}
         </div>
@@ -47,7 +41,7 @@ export default function Forbidden() {
 
     if (auth?.user?.role === 'cashier') {
         return (
-            <div className="min-h-screen bg-gray-100">
+            <div className="min-h-screen bg-slate-50">
                 <Head title="403 Forbidden" />
                 <CashierMenu />
                 <ForbiddenContent />
@@ -55,18 +49,9 @@ export default function Forbidden() {
         );
     }
 
-    if (auth?.user?.role === 'user') {
-        return (
-            <CustomerLayout>
-                <Head title="403 Forbidden" />
-                <ForbiddenContent />
-            </CustomerLayout>
-        );
-    }
-
-    // fallback (no auth or unknown role)
+    // fallback
     return (
-        <div className="min-h-screen flex items-center justify-center">
+        <div className="min-h-screen flex items-center justify-center bg-slate-50">
             <Head title="403 Forbidden" />
             <ForbiddenContent />
         </div>

@@ -53,17 +53,14 @@ export default function CashierMenu() {
                 {/* Brand Logo */}
                 <div className="flex items-center gap-6">
                     <Link href="/cashier/pos" className="flex items-center gap-2.5">
-                        <div className="flex aspect-square size-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-teal-600 to-emerald-600 text-white shadow-sm shadow-teal-600/25">
-                            <AppLogoIcon className="size-5" />
+                        <div className="flex aspect-square size-9 shrink-0 items-center justify-center rounded-xl overflow-hidden bg-white shadow-xs border border-slate-200/60 p-1">
+                            <AppLogoIcon className="size-full" />
                         </div>
-                        <div className="hidden sm:grid text-left leading-tight">
-                            <div className="flex items-center gap-1.5">
-                                <span className="font-bold text-base tracking-tight text-foreground">HelixPharma</span>
-                                <span className="rounded bg-teal-500/10 px-1.5 py-0.5 text-[10px] font-bold uppercase text-teal-700 dark:text-teal-300">
-                                    Cashier POS
-                                </span>
-                            </div>
-                            <span className="text-[11px] text-muted-foreground">Checkout & Returns</span>
+                        <div className="hidden sm:flex items-center gap-2">
+                            <img src="/helixpharma-logo.png" alt="HelixPharma" className="h-6 w-auto object-contain dark:brightness-125" />
+                            <span className="rounded bg-teal-500/10 px-1.5 py-0.5 text-[10px] font-bold uppercase text-teal-700 dark:text-teal-300">
+                                Cashier POS
+                            </span>
                         </div>
                     </Link>
 

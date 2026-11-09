@@ -2,13 +2,6 @@
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\ConfirmablePasswordController;
-use App\Http\Controllers\Auth\Customer\AuthenticatedCustomerSessionController;
-use App\Http\Controllers\Auth\Customer\CustomerEmailVerificationNotificationController;
-use App\Http\Controllers\Auth\Customer\CustomerEmailVerificationPromptController;
-use App\Http\Controllers\Auth\Customer\CustomerNewPasswordController;
-use App\Http\Controllers\Auth\Customer\CustomerPasswordResetLinkController;
-use App\Http\Controllers\Auth\Customer\CustomerVerifyEmailController;
-use App\Http\Controllers\Auth\Customer\RegisteredCustomerController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\EmailVerificationPromptController;
 use App\Http\Controllers\Auth\NewPasswordController;
@@ -65,47 +58,4 @@ Route::middleware('auth')->group(function () {
 
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
         ->name('logout');
-});
-
-// ─── Customer auth routes ────────────────────────────────────────────────────
-Route::prefix('customers')->group(function () {
-    Route::middleware('guest:customer')->group(function () {
-        Route::get('register', [RegisteredCustomerController::class, 'create'])
-            ->name('customer.register');
-        Route::post('register', [RegisteredCustomerController::class, 'store'])
-            ->middleware('throttle:10,1');
-
-        Route::get('login', [AuthenticatedCustomerSessionController::class, 'create'])
-            ->name('customer.login');
-        Route::post('login', [AuthenticatedCustomerSessionController::class, 'store'])
-            ->middleware('throttle:20,1');
-
-        Route::get('forgot-password', [CustomerPasswordResetLinkController::class, 'create'])
-            ->name('customer.password.request');
-        Route::post('forgot-password', [CustomerPasswordResetLinkController::class, 'store'])
-            ->middleware('throttle:6,1')
-            ->name('customer.password.email');
-
-        Route::get('reset-password/{token}', [CustomerNewPasswordController::class, 'create'])
-            ->name('customer.password.reset');
-        Route::post('reset-password', [CustomerNewPasswordController::class, 'store'])
-            ->middleware('throttle:10,1')
-            ->name('customer.password.store');
-    });
-
-    Route::middleware('customer')->group(function () {
-        Route::get('verify-email', CustomerEmailVerificationPromptController::class)
-            ->name('customer.verification.notice');
-
-        Route::get('verify-email/{id}/{hash}', CustomerVerifyEmailController::class)
-            ->middleware(['signed', 'throttle:6,1'])
-            ->name('customer.verification.verify');
-
-        Route::post('email/verification-notification', [CustomerEmailVerificationNotificationController::class, 'store'])
-            ->middleware('throttle:6,1')
-            ->name('customer.verification.send');
-
-        Route::post('logout', [AuthenticatedCustomerSessionController::class, 'destroy'])
-            ->name('customer.logout');
-    });
 });

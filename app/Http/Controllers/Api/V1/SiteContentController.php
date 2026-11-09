@@ -21,3 +21,4 @@ class SiteContentController extends Controller
         ]);
     }
 }
+

@@ -3,8 +3,6 @@
 use App\Http\Controllers\BarcodeController;
 use App\Http\Controllers\CashierController;
 use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\ContactController;
-use App\Http\Controllers\CustomerOrderController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GoogleController;
 use App\Http\Controllers\InvoiceController;
@@ -16,7 +14,6 @@ use App\Http\Controllers\PurchasedItemController;
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\SaleReturnController;
 use App\Http\Controllers\SiteContentController;
-use App\Http\Controllers\StorefrontController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -91,29 +88,6 @@ Route::middleware(['auth', 'verified', 'role:admin,cashier'])->controller(SaleRe
     Route::get('/returns/{saleReturn}', 'show')->name('returns.show');
     Route::get('/returns/{saleReturn}/pdf', 'pdf')->name('returns.pdf');
 });
-
-// Customer-authenticated routes (customer guard + email verified)
-Route::middleware(['customer', 'customer.verified'])->group(function () {
-    Route::post('/checkout', [CustomerOrderController::class, 'checkout'])
-        ->middleware('throttle:20,1')
-        ->name('checkout');
-    Route::get('/my-orders', [CustomerOrderController::class, 'myOrders'])->name('customers.myorders');
-    Route::get('/my-orders/{order}', [CustomerOrderController::class, 'myOrderItems'])->name('customers.myorderitems');
-    Route::get('/customers/checkout', [CustomerOrderController::class, 'showCheckout'])->name('customer.checkout');
-    Route::get('/customers/orders', [CustomerOrderController::class, 'orders'])->name('customer.orders');
-});
-
-// Public storefront routes
-Route::get('/customers', [StorefrontController::class, 'index'])->name('customer.index');
-Route::get('/customers/products', [StorefrontController::class, 'products'])->name('customers.products');
-Route::get('/customers/product/{medicine}', [StorefrontController::class, 'product'])->name('customers.product');
-Route::get('/customers/cart', [StorefrontController::class, 'cart'])->name('customer.cart');
-Route::post('/customers/contact', [ContactController::class, 'send'])
-    ->middleware('throttle:5,1')
-    ->name('contact');
-
-// Customer SPA Storefront (powered by /api/v1)
-Route::get('/spa', fn () => Inertia::render('customers/SpaApp'))->name('customer.spa');
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

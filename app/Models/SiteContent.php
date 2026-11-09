@@ -39,3 +39,4 @@ class SiteContent extends Model
         );
     }
 }
+

@@ -70,3 +70,4 @@ class SiteContentController extends Controller
         return redirect()->back()->with('success', 'Website content updated successfully.');
     }
 }
+

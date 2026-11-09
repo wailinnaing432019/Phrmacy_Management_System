@@ -15,6 +15,7 @@ use App\Http\Controllers\POSController;
 use App\Http\Controllers\PurchasedItemController;
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\SaleReturnController;
+use App\Http\Controllers\SiteContentController;
 use App\Http\Controllers\StorefrontController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\UserController;
@@ -59,6 +60,9 @@ Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
     Route::get('/invoice/{order}/download', [InvoiceController::class, 'download'])->name('invoice.download');
 
     Route::get('/print-barcodes/{id}', [MedicineController::class, 'printBarcodes'])->name('medicines.printBarcodes');
+
+    Route::get('/site-content', [SiteContentController::class, 'index'])->name('site-content.index');
+    Route::put('/site-content', [SiteContentController::class, 'update'])->name('site-content.update');
 });
 
 Route::prefix('cashier')->middleware(['auth', 'verified', 'role:cashier'])->controller(CashierController::class)->group(function () {

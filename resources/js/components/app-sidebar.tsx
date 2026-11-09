@@ -13,6 +13,7 @@ import {
 import { type NavGroup } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 import {
+    Globe,
     LayoutDashboard,
     Package,
     Pill,
@@ -77,6 +78,11 @@ const adminNavGroups: NavGroup[] = [
                 title: 'Staff & Users',
                 href: '/users',
                 icon: Users,
+            },
+            {
+                title: 'Website Content',
+                href: '/site-content',
+                icon: Globe,
             },
         ],
     },

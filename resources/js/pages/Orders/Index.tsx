@@ -284,7 +284,7 @@ export default function Index() {
                         <h1 className="text-2xl font-bold tracking-tight text-foreground">
                             Customer Orders
                         </h1>
-                        <span className="rounded-full bg-teal-500/10 px-2.5 py-0.5 text-xs font-bold text-teal-700 dark:text-teal-300">
+                        <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-bold text-primary">
                             Page {orders.current_page} of {orders.last_page}
                         </span>
                     </div>

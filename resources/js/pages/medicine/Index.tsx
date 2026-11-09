@@ -153,7 +153,7 @@ export default function Index({
                             <h1 className="text-2xl font-bold tracking-tight text-foreground">
                                 Medicine Inventory
                             </h1>
-                            <span className="rounded-full bg-teal-500/10 px-2.5 py-0.5 text-xs font-bold text-teal-700 dark:text-teal-300">
+                            <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-bold text-primary">
                                 {medicines.total !== undefined ? `${medicines.total} items` : 'Catalog'}
                             </span>
                         </div>
@@ -163,7 +163,7 @@ export default function Index({
                     </div>
 
                     <Link href={route('medicines.create')}>
-                        <Button className="h-10 gap-2 rounded-xl bg-teal-600 px-4 font-semibold text-white shadow-sm shadow-teal-600/30 hover:bg-teal-700 transition-all">
+                        <Button className="h-10 gap-2 rounded-xl bg-primary px-4 font-semibold text-primary-foreground shadow-sm shadow-primary/30 hover:bg-primary/90 transition-all">
                             <Plus className="size-4" />
                             <span>Add New Medicine</span>
                         </Button>
@@ -267,7 +267,7 @@ export default function Index({
                                                         <div className="space-y-0.5 max-w-[200px]">
                                                             <Link
                                                                 href={route('medicines.show', medicine.id)}
-                                                                className="font-bold text-sm text-foreground hover:text-teal-600 dark:hover:text-teal-400 truncate block transition-colors"
+                                                                className="font-bold text-sm text-foreground hover:text-primary truncate block transition-colors"
                                                             >
                                                                 {medicine.name}
                                                             </Link>
@@ -346,7 +346,7 @@ export default function Index({
                                                                             <Button
                                                                                 size="icon"
                                                                                 variant="ghost"
-                                                                                className="size-8 rounded-lg text-teal-700 hover:bg-teal-50 dark:text-teal-300 dark:hover:bg-teal-950/40"
+                                                                                className="size-8 rounded-lg text-primary hover:bg-primary/10"
                                                                             >
                                                                                 <Plus className="size-4" />
                                                                             </Button>
@@ -354,7 +354,7 @@ export default function Index({
                                                                         <DialogContent className="rounded-2xl">
                                                                             <DialogHeader>
                                                                                 <DialogTitle>
-                                                                                    Add Stock for <span className="text-teal-600">{medicine.name}</span>
+                                                                                    Add Stock for <span className="text-primary">{medicine.name}</span>
                                                                                 </DialogTitle>
                                                                             </DialogHeader>
                                                                             <AddStockForm
@@ -424,7 +424,7 @@ export default function Index({
                                                                         <DialogContent className="rounded-2xl">
                                                                             <DialogHeader>
                                                                                 <DialogTitle>
-                                                                                    Print Barcode for <span className="text-teal-600">{medicine.name}</span>
+                                                                                    Print Barcode for <span className="text-primary">{medicine.name}</span>
                                                                                 </DialogTitle>
                                                                             </DialogHeader>
                                                                             <PrintBarcode

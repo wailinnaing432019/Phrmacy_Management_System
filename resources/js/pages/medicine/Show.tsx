@@ -50,7 +50,7 @@ export default function Show({ medicine, purchasedItems = [] }: { medicine: any;
                                 <h1 className="text-2xl font-bold tracking-tight text-foreground">
                                     {medicine.name}
                                 </h1>
-                                <span className="rounded-full bg-teal-500/10 px-2.5 py-0.5 text-xs font-bold text-teal-700 dark:text-teal-300">
+                                <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-bold text-primary">
                                     {medicine.category}
                                 </span>
                             </div>
@@ -61,7 +61,7 @@ export default function Show({ medicine, purchasedItems = [] }: { medicine: any;
                     </div>
 
                     <Link href={route('medicines.edit', medicine.id)}>
-                        <Button className="rounded-xl bg-teal-600 px-4 text-xs font-semibold text-white shadow-sm shadow-teal-600/30 hover:bg-teal-700">
+                        <Button className="rounded-xl bg-primary px-4 text-xs font-semibold text-primary-foreground shadow-sm shadow-primary/30 hover:bg-primary/90">
                             <Pencil className="mr-1.5 size-3.5" />
                             Edit Specifications
                         </Button>
@@ -99,7 +99,7 @@ export default function Show({ medicine, purchasedItems = [] }: { medicine: any;
                             </div>
                             <div className="flex justify-between py-1.5 border-b border-border/50">
                                 <span className="font-medium text-muted-foreground">Retail Selling Price</span>
-                                <span className="font-bold text-teal-700 dark:text-teal-400 font-mono">
+                                <span className="font-bold text-primary font-mono">
                                     {Number(medicine.selling_price).toLocaleString()} MMK
                                 </span>
                             </div>
@@ -162,7 +162,7 @@ export default function Show({ medicine, purchasedItems = [] }: { medicine: any;
                                                     <TableRow key={batch.id} className="hover:bg-muted/30 transition-colors">
                                                         <TableCell className="font-mono text-xs">{batch.qty}</TableCell>
                                                         <TableCell className="font-mono text-xs text-muted-foreground">{batch.sold_qty}</TableCell>
-                                                        <TableCell className="font-mono text-xs font-bold text-teal-700 dark:text-teal-400">
+                                                        <TableCell className="font-mono text-xs font-bold text-primary">
                                                             {batch.available_qty}
                                                         </TableCell>
                                                         <TableCell className="font-mono text-xs">

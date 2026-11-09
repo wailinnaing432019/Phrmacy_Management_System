@@ -196,7 +196,7 @@ export default function SiteContentIndex({ contents }: Props) {
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200">
                     <div>
                         <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center">
+                            <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
                                 <Globe className="w-4 h-4" />
                             </div>
                             <h1 className="text-xl font-bold text-slate-900">Website Content Management</h1>
@@ -210,7 +210,7 @@ export default function SiteContentIndex({ contents }: Props) {
                         type="button"
                         onClick={handleSubmit}
                         disabled={processing}
-                        className="bg-teal-600 hover:bg-teal-700 text-white shadow-sm flex items-center gap-2 text-xs"
+                        className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm flex items-center gap-2 text-xs"
                     >
                         <Save className="w-4 h-4" />
                         <span>{processing ? 'Saving...' : 'Save All Changes'}</span>
@@ -235,7 +235,7 @@ export default function SiteContentIndex({ contents }: Props) {
                                 onClick={() => setActiveTab(tab.id as any)}
                                 className={`px-4 py-2 rounded-t-lg text-xs font-semibold flex items-center gap-2 border-b-2 transition-colors whitespace-nowrap ${
                                     active
-                                        ? 'border-teal-600 text-teal-700 bg-teal-50/50'
+                                        ? 'border-primary text-primary bg-primary/5'
                                         : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-50'
                                 }`}
                             >
@@ -252,14 +252,14 @@ export default function SiteContentIndex({ contents }: Props) {
                     {activeTab === 'mission-vision' && (
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                             {/* Mission Card */}
-                            <Card className="border-teal-200 shadow-xs">
-                                <CardHeader className="bg-teal-50/40 pb-4 border-b border-teal-100">
+                            <Card className="border-primary/20 shadow-xs">
+                                <CardHeader className="bg-primary/5 pb-4 border-b border-primary/10">
                                     <div className="flex items-center justify-between">
                                         <CardTitle className="text-base font-bold text-slate-900 flex items-center gap-2">
-                                            <Target className="w-4 h-4 text-teal-600" />
+                                            <Target className="w-4 h-4 text-primary" />
                                             <span>Our Mission</span>
                                         </CardTitle>
-                                        <span className="text-[10px] font-semibold uppercase px-2 py-0.5 rounded bg-teal-100 text-teal-800">
+                                        <span className="text-[10px] font-semibold uppercase px-2 py-0.5 rounded bg-primary/10 text-primary">
                                             Max 4 Bullet Points
                                         </span>
                                     </div>
@@ -300,7 +300,7 @@ export default function SiteContentIndex({ contents }: Props) {
                                                     variant="outline"
                                                     size="sm"
                                                     onClick={addMissionPoint}
-                                                    className="h-7 text-[11px] gap-1 text-teal-700 border-teal-300 hover:bg-teal-50"
+                                                    className="h-7 text-[11px] gap-1 text-primary border-primary/30 hover:bg-primary/10"
                                                 >
                                                     <Plus className="w-3 h-3" />
                                                     <span>Add Point</span>
@@ -438,7 +438,7 @@ export default function SiteContentIndex({ contents }: Props) {
                         <Card className="shadow-xs">
                             <CardHeader className="bg-slate-50/60 pb-4 border-b border-slate-100">
                                 <CardTitle className="text-base font-bold text-slate-900 flex items-center gap-2">
-                                    <PhoneCall className="w-4 h-4 text-teal-600" />
+                                    <PhoneCall className="w-4 h-4 text-primary" />
                                     <span>Contact Session Data</span>
                                 </CardTitle>
                                 <CardDescription className="text-xs">
@@ -526,7 +526,7 @@ export default function SiteContentIndex({ contents }: Props) {
                         <Card className="shadow-xs">
                             <CardHeader className="bg-slate-50/60 pb-4 border-b border-slate-100">
                                 <CardTitle className="text-base font-bold text-slate-900 flex items-center gap-2">
-                                    <Globe className="w-4 h-4 text-teal-600" />
+                                    <Globe className="w-4 h-4 text-primary" />
                                     <span>About Us Overview</span>
                                 </CardTitle>
                                 <CardDescription className="text-xs">
@@ -577,7 +577,7 @@ export default function SiteContentIndex({ contents }: Props) {
                             <CardHeader className="bg-slate-50/60 pb-4 border-b border-slate-100">
                                 <div className="flex items-center justify-between">
                                     <CardTitle className="text-base font-bold text-slate-900 flex items-center gap-2">
-                                        <Award className="w-4 h-4 text-teal-600" />
+                                        <Award className="w-4 h-4 text-primary" />
                                         <span>Core Healthcare Values</span>
                                     </CardTitle>
                                     <span className="text-[10px] font-semibold uppercase px-2 py-0.5 rounded bg-amber-100 text-amber-800">
@@ -593,7 +593,7 @@ export default function SiteContentIndex({ contents }: Props) {
                                     {data.values.map((val, idx) => (
                                         <div key={idx} className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-2">
                                             <div className="flex items-center justify-between">
-                                                <span className="text-xs font-bold text-teal-700">Pillar #{idx + 1}</span>
+                                                <span className="text-xs font-bold text-primary">Pillar #{idx + 1}</span>
                                             </div>
                                             <div>
                                                 <Label className="text-xs text-slate-600">Title</Label>
@@ -635,7 +635,7 @@ export default function SiteContentIndex({ contents }: Props) {
                             <CardHeader className="bg-slate-50/60 pb-4 border-b border-slate-100">
                                 <div className="flex items-center justify-between">
                                     <CardTitle className="text-base font-bold text-slate-900 flex items-center gap-2">
-                                        <Activity className="w-4 h-4 text-teal-600" />
+                                        <Activity className="w-4 h-4 text-primary" />
                                         <span>Milestone Statistics</span>
                                     </CardTitle>
                                     <span className="text-[10px] font-semibold uppercase px-2 py-0.5 rounded bg-amber-100 text-amber-800">
@@ -650,7 +650,7 @@ export default function SiteContentIndex({ contents }: Props) {
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                                     {data.stats.map((st, idx) => (
                                         <div key={idx} className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-2">
-                                            <span className="text-xs font-bold text-teal-700">Stat #{idx + 1}</span>
+                                            <span className="text-xs font-bold text-primary">Stat #{idx + 1}</span>
                                             <div>
                                                 <Label className="text-xs text-slate-600">Metric Value</Label>
                                                 <Input
@@ -691,7 +691,7 @@ export default function SiteContentIndex({ contents }: Props) {
                         <Button
                             type="submit"
                             disabled={processing}
-                            className="bg-teal-600 hover:bg-teal-700 text-white shadow-sm flex items-center gap-2 text-xs"
+                            className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm flex items-center gap-2 text-xs"
                         >
                             <Save className="w-4 h-4" />
                             <span>{processing ? 'Saving Changes...' : 'Save All Changes'}</span>

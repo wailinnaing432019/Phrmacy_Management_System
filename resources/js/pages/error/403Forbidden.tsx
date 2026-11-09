@@ -13,13 +13,13 @@ function ForbiddenContent() {
             <p className="text-sm text-slate-500 max-w-sm">You do not have permission to access this resource or page.</p>
 
             {auth?.user?.role === "admin" && (
-                <TextLink href={route('dashboard')} className="px-4 py-2 bg-teal-600 text-white rounded-lg text-sm font-semibold hover:bg-teal-700">
+                <TextLink href={route('dashboard')} className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90">
                     Back to Dashboard
                 </TextLink>
             )}
 
             {auth?.user?.role === "cashier" && (
-                <TextLink href={route('cashier.pos')} className="px-4 py-2 bg-teal-600 text-white rounded-lg text-sm font-semibold hover:bg-teal-700">
+                <TextLink href={route('cashier.pos')} className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90">
                     Back to POS Terminal
                 </TextLink>
             )}

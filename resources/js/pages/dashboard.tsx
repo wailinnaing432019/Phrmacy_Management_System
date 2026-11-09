@@ -108,9 +108,9 @@ export default function Dashboard({
             subtitle: 'Cumulative lifetime sales',
             icon: TrendingUp,
             colorScheme: {
-                iconBg: 'bg-teal-500/10 text-teal-600 dark:text-teal-400 border-teal-500/20',
-                topBorder: 'border-t-teal-500',
-                valueColor: 'text-teal-700 dark:text-teal-400',
+                iconBg: 'bg-primary/10 text-primary border-primary/20',
+                topBorder: 'border-t-primary',
+                valueColor: 'text-primary',
             },
         },
         {
@@ -165,12 +165,12 @@ export default function Dashboard({
 
             <div className="flex h-full flex-1 flex-col gap-6 p-4 sm:p-6 md:gap-8">
                 {/* Hero Header Section */}
-                <div className="relative overflow-hidden rounded-2xl border border-border/80 bg-gradient-to-r from-teal-500/10 via-emerald-500/5 to-transparent p-5 sm:p-6 shadow-sm">
+                <div className="relative overflow-hidden rounded-2xl border border-border/80 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent p-5 sm:p-6 shadow-sm">
                     <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                         <div className="space-y-1.5">
                             <div className="flex items-center gap-2">
-                                <span className="inline-flex items-center gap-1.5 rounded-md bg-teal-500/15 px-2.5 py-0.5 text-xs font-semibold text-teal-800 dark:text-teal-300">
-                                    <Activity className="size-3 text-teal-600 dark:text-teal-400" />
+                                <span className="inline-flex items-center gap-1.5 rounded-md bg-primary/15 px-2.5 py-0.5 text-xs font-semibold text-primary">
+                                    <Activity className="size-3 text-primary" />
                                     Live Telemetry
                                 </span>
                                 <div className="flex items-center gap-1 text-xs text-muted-foreground">
@@ -190,7 +190,7 @@ export default function Dashboard({
                         <div className="flex flex-wrap items-center gap-2.5">
                             <Link
                                 href="/sales"
-                                className="inline-flex items-center gap-2 rounded-xl bg-teal-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm shadow-teal-600/30 transition-all hover:bg-teal-700 hover:shadow-md"
+                                className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm shadow-primary/30 transition-all hover:bg-primary/90 hover:shadow-md"
                             >
                                 <ShoppingBag className="size-4" />
                                 <span>Sales History</span>
@@ -200,7 +200,7 @@ export default function Dashboard({
                                 href="/medicines/create"
                                 className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5 text-sm font-semibold text-foreground shadow-xs transition-all hover:bg-accent hover:text-accent-foreground"
                             >
-                                <Plus className="size-4 text-teal-600 dark:text-teal-400" />
+                                <Plus className="size-4 text-primary" />
                                 <span>Add Medicine</span>
                             </Link>
 
@@ -208,7 +208,7 @@ export default function Dashboard({
                                 href="/orders"
                                 className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5 text-sm font-semibold text-foreground shadow-xs transition-all hover:bg-accent hover:text-accent-foreground"
                             >
-                                <Package className="size-4 text-teal-600 dark:text-teal-400" />
+                                <Package className="size-4 text-primary" />
                                 <span>Orders</span>
                             </Link>
                         </div>
@@ -259,7 +259,7 @@ export default function Dashboard({
                                 <h2 className="text-base font-bold text-foreground">Sales Velocity</h2>
                                 <p className="text-xs text-muted-foreground">Daily aggregated revenue performance</p>
                             </div>
-                            <span className="inline-flex items-center gap-1 rounded-full bg-teal-500/10 px-2 py-0.5 text-xs font-medium text-teal-700 dark:text-teal-400">
+                            <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
                                 <TrendingUp className="size-3" />
                                 Daily Total
                             </span>
@@ -274,8 +274,8 @@ export default function Dashboard({
                                     >
                                         <defs>
                                             <linearGradient id="salesGradient" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="5%" stopColor="#0d9488" stopOpacity={0.3} />
-                                                <stop offset="95%" stopColor="#0d9488" stopOpacity={0.0} />
+                                                <stop offset="5%" stopColor="#7700a0" stopOpacity={0.3} />
+                                                <stop offset="95%" stopColor="#7700a0" stopOpacity={0.0} />
                                             </linearGradient>
                                         </defs>
                                         <CartesianGrid strokeDasharray="3 3" stroke="currentColor" opacity={0.1} />
@@ -300,17 +300,17 @@ export default function Dashboard({
                                                 padding: '8px 12px',
                                             }}
                                             labelStyle={{ fontWeight: 700, color: '#0f172a', marginBottom: 4 }}
-                                            itemStyle={{ color: '#0d9488', fontWeight: 600 }}
+                                            itemStyle={{ color: '#7700a0', fontWeight: 600 }}
                                             formatter={(value: number) => [`${Number(value).toLocaleString()} MMK`, 'Sales']}
                                         />
                                         <Area
                                             type="monotone"
                                             dataKey="total"
-                                            stroke="#0d9488"
+                                            stroke="#7700a0"
                                             strokeWidth={2.5}
                                             fillOpacity={1}
                                             fill="url(#salesGradient)"
-                                            activeDot={{ r: 6, fill: '#0d9488', stroke: '#fff', strokeWidth: 2 }}
+                                            activeDot={{ r: 6, fill: '#7700a0', stroke: '#fff', strokeWidth: 2 }}
                                         />
                                     </AreaChart>
                                 </ResponsiveContainer>
@@ -437,9 +437,9 @@ export default function Dashboard({
                                             <td className="px-5 py-3.5 font-medium text-foreground">
                                                 <Link
                                                     href={route('medicines.show', item.medicine_id)}
-                                                    className="inline-flex items-center gap-2 hover:text-teal-600 dark:hover:text-teal-400 font-semibold"
+                                                    className="inline-flex items-center gap-2 hover:text-primary font-semibold"
                                                 >
-                                                    <Pill className="size-3.5 text-teal-600 dark:text-teal-400" />
+                                                    <Pill className="size-3.5 text-primary" />
                                                     <span>{item.name}</span>
                                                 </Link>
                                             </td>
@@ -454,7 +454,7 @@ export default function Dashboard({
                                             <td className="px-5 py-3.5 text-right">
                                                 <Link
                                                     href={route('medicines.show', item.medicine_id)}
-                                                    className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold text-teal-700 hover:bg-teal-50 dark:text-teal-300 dark:hover:bg-teal-950/40"
+                                                    className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold text-primary hover:bg-primary/10"
                                                 >
                                                     <span>Inspect</span>
                                                     <ArrowRight className="size-3" />

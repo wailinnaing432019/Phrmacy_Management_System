@@ -44,7 +44,7 @@ export function NavMain({ items = [], groups }: NavMainProps) {
                                             tooltip={{ children: item.title }}
                                             className={
                                                 active
-                                                    ? 'bg-teal-500/10 text-teal-700 dark:text-teal-300 font-semibold border-l-2 border-teal-600 rounded-l-none pl-2.5 transition-all'
+                                                    ? 'bg-primary/10 text-primary font-semibold border-l-2 border-primary rounded-l-none pl-2.5 transition-all'
                                                     : 'text-muted-foreground hover:text-foreground transition-colors'
                                             }
                                         >
@@ -53,7 +53,7 @@ export function NavMain({ items = [], groups }: NavMainProps) {
                                                     <item.icon
                                                         className={`size-4 ${
                                                             active
-                                                                ? 'text-teal-600 dark:text-teal-400'
+                                                                ? 'text-primary'
                                                                 : 'text-muted-foreground/80'
                                                         }`}
                                                     />
@@ -88,7 +88,7 @@ export function NavMain({ items = [], groups }: NavMainProps) {
                                 tooltip={{ children: item.title }}
                                 className={
                                     active
-                                        ? 'bg-teal-500/10 text-teal-700 dark:text-teal-300 font-semibold border-l-2 border-teal-600 rounded-l-none pl-2.5'
+                                        ? 'bg-primary/10 text-primary font-semibold border-l-2 border-primary rounded-l-none pl-2.5'
                                         : 'text-muted-foreground hover:text-foreground'
                                 }
                             >
@@ -96,7 +96,7 @@ export function NavMain({ items = [], groups }: NavMainProps) {
                                     {item.icon && (
                                         <item.icon
                                             className={`size-4 ${
-                                                active ? 'text-teal-600 dark:text-teal-400' : 'text-muted-foreground/80'
+                                                active ? 'text-primary' : 'text-muted-foreground/80'
                                             }`}
                                         />
                                     )}

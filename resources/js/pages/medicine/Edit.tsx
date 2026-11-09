@@ -112,7 +112,7 @@ export default function Edit({
                                 <h1 className="text-2xl font-bold tracking-tight text-foreground">
                                     Edit {medicine.name}
                                 </h1>
-                                <span className="rounded-full bg-teal-500/10 px-2.5 py-0.5 text-xs font-bold text-teal-700 dark:text-teal-300">
+                                <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-bold text-primary">
                                     ID #{medicine.id}
                                 </span>
                             </div>
@@ -131,7 +131,7 @@ export default function Edit({
                         <Button
                             onClick={submit}
                             disabled={processing}
-                            className="rounded-xl bg-teal-600 px-5 text-xs font-semibold text-white shadow-sm shadow-teal-600/30 hover:bg-teal-700"
+                            className="rounded-xl bg-primary px-5 text-xs font-semibold text-primary-foreground shadow-sm shadow-primary/30 hover:bg-primary/90"
                         >
                             {processing ? (
                                 <>
@@ -155,7 +155,7 @@ export default function Edit({
                         <Card className="rounded-2xl border-border/80 shadow-xs">
                             <CardHeader className="pb-3 border-b border-border/60">
                                 <div className="flex items-center gap-2">
-                                    <Pill className="size-4 text-teal-600 dark:text-teal-400" />
+                                    <Pill className="size-4 text-primary" />
                                     <CardTitle className="text-base font-bold">General Information</CardTitle>
                                 </div>
                                 <CardDescription className="text-xs">
@@ -325,7 +325,7 @@ export default function Edit({
                                         </div>
                                     ) : (
                                         <div className="space-y-2 py-4">
-                                            <div className="flex size-12 items-center justify-center rounded-full bg-teal-500/10 text-teal-600 dark:text-teal-400 mx-auto">
+                                            <div className="flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary mx-auto">
                                                 <UploadCloud className="size-6" />
                                             </div>
                                             <p className="text-xs font-medium text-foreground">

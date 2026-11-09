@@ -185,7 +185,7 @@ export default function Index({ sales, filters }: { sales: SalePagination, filte
                                     setData('source', source);
                                     router.visit(route('sales.index', { ...filters, source }), { preserveScroll: true });
                                 }}
-                                className="w-full sm:w-44 px-3 py-2 border border-border bg-background rounded-xl shadow-xs text-xs font-medium text-foreground focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                                className="w-full sm:w-44 px-3 py-2 border border-border bg-background rounded-xl shadow-xs text-xs font-medium text-foreground focus:ring-2 focus:ring-primary focus:border-primary"
                             >
                                 <option value="shop">Shop (POS)</option>
                                 <option value="online">Online (Storefront)</option>

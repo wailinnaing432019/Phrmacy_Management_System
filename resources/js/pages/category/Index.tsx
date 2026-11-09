@@ -151,7 +151,7 @@ export default function Index({ categories = [] }: { categories: Category[] }) {
                             <h1 className="text-2xl font-bold tracking-tight text-foreground">
                                 Medicine Categories
                             </h1>
-                            <span className="rounded-full bg-teal-500/10 px-2.5 py-0.5 text-xs font-bold text-teal-700 dark:text-teal-300">
+                            <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-bold text-primary">
                                 {categories.length} Total
                             </span>
                         </div>
@@ -162,7 +162,7 @@ export default function Index({ categories = [] }: { categories: Category[] }) {
 
                     <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
                         <DialogTrigger asChild>
-                            <Button className="h-10 gap-2 rounded-xl bg-teal-600 px-4 font-semibold text-white shadow-sm shadow-teal-600/30 hover:bg-teal-700 transition-all">
+                            <Button className="h-10 gap-2 rounded-xl bg-primary px-4 font-semibold text-primary-foreground shadow-sm shadow-primary/30 hover:bg-primary/90 transition-all">
                                 <Plus className="size-4" />
                                 <span>Add Category</span>
                             </Button>
@@ -233,7 +233,7 @@ export default function Index({ categories = [] }: { categories: Category[] }) {
                                     <Button
                                         type="submit"
                                         disabled={creating}
-                                        className="rounded-xl bg-teal-600 font-semibold text-white hover:bg-teal-700"
+                                        className="rounded-xl bg-primary font-semibold text-primary-foreground hover:bg-primary/90"
                                     >
                                         {creating ? (
                                             <>
@@ -273,7 +273,7 @@ export default function Index({ categories = [] }: { categories: Category[] }) {
 
                                             <TableCell>
                                                 <div className="flex items-center gap-2.5">
-                                                    <div className="flex size-8 items-center justify-center rounded-lg bg-teal-500/10 text-teal-600 dark:text-teal-400">
+                                                    <div className="flex size-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
                                                         <Tag className="size-4" />
                                                     </div>
                                                     <span className="font-bold text-sm text-foreground">
@@ -454,7 +454,7 @@ export default function Index({ categories = [] }: { categories: Category[] }) {
                                     <Button
                                         type="submit"
                                         disabled={updating}
-                                        className="rounded-xl bg-teal-600 font-semibold text-white hover:bg-teal-700"
+                                        className="rounded-xl bg-primary font-semibold text-primary-foreground hover:bg-primary/90"
                                     >
                                         {updating ? (
                                             <>

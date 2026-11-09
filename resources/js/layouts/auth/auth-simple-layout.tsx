@@ -14,8 +14,13 @@ export default function AuthSimpleLayout({ children, title, description }: Props
             <div className="w-full max-w-sm">
                 <div className="flex flex-col gap-8">
                     <div className="flex flex-col items-center gap-4">
-                        <Link href={route('home')} className="flex flex-col items-center gap-2">
-                            <img src="/helixpharma-logo.png" alt="HelixPharma" className="h-8 w-auto object-contain dark:brightness-125" />
+                        <Link href={route('home')} className="flex items-center gap-2.5">
+                            <div className="flex size-10 items-center justify-center rounded-xl bg-white p-1 shadow-xs border border-slate-200/60">
+                                <AppLogoIcon className="size-full" />
+                            </div>
+                            <span className="text-xl font-bold tracking-tight text-foreground">
+                                Helix<span className="text-primary font-extrabold">Pharma</span>
+                            </span>
                             <span className="sr-only">{title}</span>
                         </Link>
 

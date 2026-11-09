@@ -7,11 +7,10 @@ export default function AppLogo() {
                 <AppLogoIcon className="size-full" />
             </div>
             <div className="grid flex-1 text-left leading-tight group-data-[collapsible=icon]:hidden">
-                <img
-                    src="/helixpharma-logo.png"
-                    alt="HelixPharma"
-                    className="h-6 w-auto object-contain dark:brightness-125"
-                />
+                <span className="truncate font-bold text-base tracking-tight text-foreground">
+                    Helix<span className="text-primary font-extrabold">Pharma</span>
+                </span>
+                <span className="truncate text-[11px] font-medium text-muted-foreground">Pharmacy Management</span>
             </div>
         </div>
     );

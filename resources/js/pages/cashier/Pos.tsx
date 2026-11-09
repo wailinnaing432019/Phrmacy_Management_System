@@ -321,9 +321,9 @@ export default function POS() {
 
             <div className="flex-1 w-full p-4 sm:p-6 space-y-4">
                 {/* Fast Scan Bar (Master Input for physical gun and manual typing) */}
-                <div className="rounded-2xl border border-teal-500/30 bg-teal-50/40 dark:bg-teal-950/20 p-3 sm:p-4 shadow-xs">
+                <div className="rounded-2xl border border-primary/20 bg-primary/5 p-3 sm:p-4 shadow-xs">
                     <div className="flex flex-col sm:flex-row items-center gap-3">
-                        <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-teal-600 text-white shadow-xs">
+                        <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-xs">
                             <ScanLine className="size-5" />
                         </div>
 
@@ -343,7 +343,7 @@ export default function POS() {
                                         }
                                     }
                                 }}
-                                className="h-11 w-full text-sm font-mono pl-3 pr-28 rounded-xl border-teal-500/30 bg-background focus-visible:ring-teal-500"
+                                className="h-11 w-full text-sm font-mono pl-3 pr-28 rounded-xl border-primary/30 bg-background focus-visible:ring-primary"
                                 autoFocus
                             />
                             <div className="absolute right-1.5 top-1/2 -translate-y-1/2 flex items-center gap-1">
@@ -352,7 +352,7 @@ export default function POS() {
                                     size="sm"
                                     variant="ghost"
                                     onClick={() => setScanning(-1)}
-                                    className="h-8 gap-1 text-xs text-teal-700 hover:bg-teal-500/20 dark:text-teal-300"
+                                    className="h-8 gap-1 text-xs text-primary hover:bg-primary/10"
                                     title="Scan barcode with camera"
                                 >
                                     <Camera className="size-4" />
@@ -392,7 +392,7 @@ export default function POS() {
                         <div className="relative w-full max-w-md rounded-2xl border border-border bg-card p-5 shadow-2xl">
                             <div className="flex items-center justify-between pb-3 border-b border-border">
                                 <div className="flex items-center gap-2">
-                                    <Camera className="size-5 text-teal-600" />
+                                    <Camera className="size-5 text-primary" />
                                     <h3 className="font-bold text-sm">Camera Barcode Scanner</h3>
                                 </div>
                                 <Button
@@ -527,7 +527,7 @@ export default function POS() {
                                                 </TableCell>
 
                                                 {/* Subtotal */}
-                                                <TableCell className="text-right font-mono font-bold text-sm text-teal-700 dark:text-teal-400">
+                                                <TableCell className="text-right font-mono font-bold text-sm text-primary">
                                                     {item.selling_price
                                                         ? `${((item.quantity || 0) * item.selling_price).toLocaleString()} MMK`
                                                         : '—'}
@@ -560,7 +560,7 @@ export default function POS() {
                         <Card className="rounded-2xl border-border/80 shadow-xs">
                             <CardHeader className="pb-3 border-b border-border/60">
                                 <div className="flex items-center gap-2">
-                                    <Receipt className="size-4 text-teal-600 dark:text-teal-400" />
+                                    <Receipt className="size-4 text-primary" />
                                     <CardTitle className="text-base font-bold">Payment Summary</CardTitle>
                                 </div>
                             </CardHeader>
@@ -570,7 +570,7 @@ export default function POS() {
                                     <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                                         Total Amount
                                     </span>
-                                    <div className="flex items-baseline gap-1 text-2xl font-black text-teal-700 dark:text-teal-300">
+                                    <div className="flex items-baseline gap-1 text-2xl font-black text-primary">
                                         <span>{totalAmount.toLocaleString()}</span>
                                         <span className="text-xs font-semibold text-muted-foreground">MMK</span>
                                     </div>
@@ -585,7 +585,7 @@ export default function POS() {
                                         <button
                                             type="button"
                                             onClick={setExactAmount}
-                                            className="text-xs font-semibold text-teal-600 hover:underline cursor-pointer"
+                                            className="text-xs font-semibold text-primary hover:underline cursor-pointer"
                                         >
                                             Exact Amount
                                         </button>
@@ -607,7 +607,7 @@ export default function POS() {
                                     </span>
                                     <span
                                         className={`font-mono text-base font-bold ${
-                                            refundAmount >= 0 ? 'text-emerald-700 dark:text-emerald-400' : 'text-destructive'
+                                            refundAmount >= 0 ? 'text-primary' : 'text-destructive'
                                         }`}
                                     >
                                         {refundAmount.toLocaleString()} MMK
@@ -619,7 +619,7 @@ export default function POS() {
                                     type="button"
                                     disabled={processing || refundAmount < 0 || receivedAmount <= 0 || totalAmount <= 0}
                                     onClick={completeSale}
-                                    className="h-12 w-full rounded-xl bg-teal-600 font-bold text-white shadow-sm shadow-teal-600/30 hover:bg-teal-700 disabled:opacity-50"
+                                    className="h-12 w-full rounded-xl bg-primary font-bold text-primary-foreground shadow-sm shadow-primary/30 hover:bg-primary/90 disabled:opacity-50"
                                 >
                                     {processing ? (
                                         <>

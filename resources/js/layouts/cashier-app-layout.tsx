@@ -86,8 +86,10 @@ export default function CashierAppLayout({ children, breadcrumbs = [] }: Cashier
                                 <AppLogoIcon className="size-full" />
                             </div>
                             <div className="hidden sm:flex items-center gap-2">
-                                <img src="/helixpharma-logo.png" alt="HelixPharma" className="h-6 w-auto object-contain dark:brightness-125" />
-                                <span className="rounded bg-teal-500/10 px-1.5 py-0.5 text-[10px] font-bold uppercase text-teal-700 dark:text-teal-300">
+                                <span className="font-bold text-base tracking-tight text-foreground">
+                                    Helix<span className="text-primary font-extrabold">Pharma</span>
+                                </span>
+                                <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-bold uppercase text-primary">
                                     Cashier POS
                                 </span>
                             </div>
@@ -105,7 +107,7 @@ export default function CashierAppLayout({ children, breadcrumbs = [] }: Cashier
                                         href={item.href}
                                         className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition-all ${
                                             active
-                                                ? 'bg-teal-500/15 text-teal-800 dark:bg-teal-950/60 dark:text-teal-300 shadow-xs'
+                                                ? 'bg-primary/15 text-primary shadow-xs'
                                                 : 'text-muted-foreground hover:bg-accent hover:text-foreground'
                                         }`}
                                     >
@@ -113,7 +115,7 @@ export default function CashierAppLayout({ children, breadcrumbs = [] }: Cashier
                                             <Icon
                                                 className={`size-4 ${
                                                     active
-                                                        ? 'text-teal-600 dark:text-teal-400'
+                                                        ? 'text-primary'
                                                         : 'text-muted-foreground/80'
                                                 }`}
                                             />
@@ -128,10 +130,10 @@ export default function CashierAppLayout({ children, breadcrumbs = [] }: Cashier
                     {/* Right Tools: Status, Theme, Cashier Profile */}
                     <div className="flex items-center gap-2.5 sm:gap-4">
                         {/* Status Pill */}
-                        <div className="hidden lg:flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1 text-[11px] font-medium text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
+                        <div className="hidden lg:flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-medium text-primary border border-primary/20">
                             <span className="relative flex size-2">
-                                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-                                <span className="relative inline-flex size-2 rounded-full bg-emerald-500" />
+                                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
+                                <span className="relative inline-flex size-2 rounded-full bg-primary" />
                             </span>
                             <span>Register Active</span>
                         </div>
@@ -149,7 +151,7 @@ export default function CashierAppLayout({ children, breadcrumbs = [] }: Cashier
                                     className="flex items-center gap-2 p-1.5 hover:bg-accent rounded-lg"
                                 >
                                     <Avatar className="size-8 overflow-hidden rounded-lg border border-border">
-                                        <AvatarFallback className="rounded-lg bg-gradient-to-br from-teal-500 to-emerald-600 text-white font-semibold text-xs">
+                                        <AvatarFallback className="rounded-lg bg-gradient-to-br from-purple-600 to-indigo-700 text-white font-semibold text-xs">
                                             {getInitials(user.name)}
                                         </AvatarFallback>
                                     </Avatar>

@@ -30,7 +30,7 @@ export default function FilterBar({ currentMonth, currentYear }) {
                     type="month"
                     value={monthYear}
                     onChange={(e) => setMonthYear(e.target.value)}
-                    className="w-full sm:w-44 px-3 py-2 border border-border bg-background rounded-xl shadow-xs text-xs font-medium text-foreground focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                    className="w-full sm:w-44 px-3 py-2 border border-border bg-background rounded-xl shadow-xs text-xs font-medium text-foreground focus:ring-2 focus:ring-primary focus:border-primary"
                 />
             </div>
 

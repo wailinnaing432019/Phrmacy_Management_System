@@ -32,6 +32,25 @@ class UserService
     /**
      * @param  array<string, mixed>  $data
      */
+    public function create(array $data): User
+    {
+        $attributes = [
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'role' => $data['role'],
+            'password' => Hash::make($data['password']),
+            'email_verified_at' => now(),
+        ];
+
+        /** @var User $user */
+        $user = $this->users->create($attributes);
+
+        return $user;
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     */
     public function update(User $user, array $data): User
     {
         $attributes = [

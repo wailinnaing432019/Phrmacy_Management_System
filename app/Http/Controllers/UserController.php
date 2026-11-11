@@ -23,9 +23,16 @@ class UserController extends Controller
         $users = $this->users->paginate($request->only(['search', 'role']))
             ->through(fn (User $user) => (new UserListResource($user))->resolve());
 
+        $counts = [
+            'total' => User::count(),
+            'admin' => User::where('role', 'admin')->count(),
+            'cashier' => User::where('role', 'cashier')->count(),
+        ];
+
         return inertia('user/Index', [
             'users' => $users,
             'filters' => $request->only(['search', 'role']),
+            'counts' => $counts,
         ]);
     }
 
@@ -34,7 +41,8 @@ class UserController extends Controller
      */
     public function create()
     {
-        // Logic to show user creation form
+        // Handled via modal in the index view.
+        return redirect()->route('users.index');
     }
 
     /**
@@ -42,7 +50,16 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        // Logic to store a new user
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email'],
+            'role' => ['required', 'string', Rule::in(['admin', 'cashier'])],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        $this->users->create($validated);
+
+        return redirect()->back()->with('success', ucfirst($validated['role']).' account created successfully.');
     }
 
     /**
@@ -71,8 +88,8 @@ class UserController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email,'.$user->id,
-            'role' => ['required', 'string', Rule::in(['admin', 'cashier', 'user'])],
-            'password' => 'nullable|string|min:6',
+            'role' => ['required', 'string', Rule::in(['admin', 'cashier'])],
+            'password' => 'nullable|string|min:8',
         ]);
 
         $user = $this->users->update($user, $validated);
@@ -95,9 +112,14 @@ class UserController extends Controller
     /**
      * Remove the specified user.
      */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
         $user = $this->users->find((int) $id);
+
+        if ($request->user()->id === $user->id) {
+            return redirect()->back()->with('error', 'You cannot delete your own account.');
+        }
+
         $this->users->delete($user);
 
         return redirect()->back()->with('success', 'User deleted successfully.');

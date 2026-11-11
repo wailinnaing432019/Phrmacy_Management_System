@@ -17,7 +17,7 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
 
     public function paginateFiltered(array $filters, int $perPage = 10): LengthAwarePaginator
     {
-        $query = $this->query();
+        $query = $this->query()->latest('id');
 
         if (! empty($filters['search'])) {
             $search = $filters['search'];

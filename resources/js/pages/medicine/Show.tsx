@@ -27,7 +27,7 @@ export default function Show({ medicine, purchasedItems = [] }: { medicine: any;
         <AppLayout
             breadcrumbs={[
                 { title: 'Medicines', href: '/medicines' },
-                { title: medicine.name, href: route('medicines.show', medicine.id) },
+                { title: medicine.name, href: route('medicines.show', medicine.uuid || medicine.id) },
             ]}
         >
             <Head title={`${medicine.name} — Details`} />
@@ -60,7 +60,7 @@ export default function Show({ medicine, purchasedItems = [] }: { medicine: any;
                         </div>
                     </div>
 
-                    <Link href={route('medicines.edit', medicine.id)}>
+                    <Link href={route('medicines.edit', medicine.uuid || medicine.id)}>
                         <Button className="rounded-xl bg-primary px-4 text-xs font-semibold text-primary-foreground shadow-sm shadow-primary/30 hover:bg-primary/90">
                             <Pencil className="mr-1.5 size-3.5" />
                             Edit Specifications

@@ -191,7 +191,7 @@ export const columns = () => {
 
                                 {/* Edit */}
                                 <DropdownMenuItem
-                                    onClick={() => router.visit(route("medicines.edit", medicine.id))}
+                                    onClick={() => router.visit(route("medicines.edit", medicine.uuid || medicine.id))}
                                 >
                                     <Pencil className="mr-2 h-4 w-4" />
                                     Edit
@@ -199,7 +199,7 @@ export const columns = () => {
 
                                 {/* View */}
                                 <DropdownMenuItem
-                                    onClick={() => router.visit(route("medicines.show", medicine.id))}
+                                    onClick={() => router.visit(route("medicines.show", medicine.uuid || medicine.id))}
                                 >
                                     <Eye className="mr-2 h-4 w-4" />
                                     View

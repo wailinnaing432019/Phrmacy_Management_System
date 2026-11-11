@@ -9,12 +9,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class Medicine extends Model
 {
     use HasActivityLog, HasFactory, SoftDeletes;
 
     protected $fillable = [
+        'uuid',
         'name',
         'description',
         'selling_price',
@@ -25,6 +27,36 @@ class Medicine extends Model
         'status',
         'image',
     ];
+
+    /**
+     * Bootstrap model events.
+     */
+    protected static function booted(): void
+    {
+        static::creating(function (Medicine $medicine) {
+            if (empty($medicine->uuid)) {
+                $medicine->uuid = (string) Str::uuid();
+            }
+        });
+    }
+
+    /**
+     * Use UUID for route model binding (e.g. /products/{uuid} or /medicines/{uuid}).
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'uuid';
+    }
+
+    /**
+     * Resolve route binding accepting UUID or legacy ID.
+     */
+    public function resolveRouteBinding($value, $field = null)
+    {
+        return $this->where($field ?? 'uuid', $value)
+            ->orWhere('id', $value)
+            ->first();
+    }
 
     //
     public function category(): BelongsTo

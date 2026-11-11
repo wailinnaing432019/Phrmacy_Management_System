@@ -358,115 +358,114 @@ export default function Index({ users, filters, counts }: IndexProps) {
                             {(() => {
                                 const displayUsers = users.data
                                     ? users.data.filter(
-                                          (u) =>
-                                              !u.is_super_admin &&
-                                              u.email !== 'admin@gmail.com' &&
-                                              u.name !== 'Super Admin'
-                                      )
+                                        (u) =>
+                                            !u.is_super_admin &&
+                                            u.email !== 'admin@gmail.com' &&
+                                            u.name !== 'Super Admin'
+                                    )
                                     : [];
 
                                 return displayUsers.length > 0 ? (
                                     displayUsers.map((user) => {
-                                    const isSelf = user.id === currentUserId;
-                                    const isAdmin = user.role === 'admin';
-                                    const isCashier = user.role === 'cashier';
+                                        const isSelf = user.id === currentUserId;
+                                        const isAdmin = user.role === 'admin';
+                                        const isCashier = user.role === 'cashier';
 
-                                    return (
-                                        <TableRow key={user.id} className="hover:bg-muted/30 transition-colors">
-                                            {/* Staff Member Info */}
-                                            <TableCell className="py-3.5 pl-6">
-                                                <div className="flex items-center gap-3">
-                                                    <Avatar className="size-9 border border-border/60">
-                                                        <AvatarFallback
-                                                            className={`font-semibold text-xs ${
-                                                                isAdmin
+                                        return (
+                                            <TableRow key={user.id} className="hover:bg-muted/30 transition-colors">
+                                                {/* Staff Member Info */}
+                                                <TableCell className="py-3.5 pl-6">
+                                                    <div className="flex items-center gap-3">
+                                                        <Avatar className="size-9 border border-border/60">
+                                                            <AvatarFallback
+                                                                className={`font-semibold text-xs ${isAdmin
                                                                     ? 'bg-purple-100 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300'
                                                                     : 'bg-indigo-100 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300'
-                                                            }`}
-                                                        >
-                                                            {getInitials(user.name)}
-                                                        </AvatarFallback>
-                                                    </Avatar>
-                                                    <div className="flex flex-col">
-                                                        <div className="flex items-center gap-2">
-                                                            <span className="font-semibold text-sm text-foreground">
-                                                                {user.name}
-                                                            </span>
-                                                            {isSelf && (
-                                                                <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">
-                                                                    You
+                                                                    }`}
+                                                            >
+                                                                {getInitials(user.name)}
+                                                            </AvatarFallback>
+                                                        </Avatar>
+                                                        <div className="flex flex-col">
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="font-semibold text-sm text-foreground">
+                                                                    {user.name}
                                                                 </span>
-                                                            )}
+                                                                {isSelf && (
+                                                                    <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">
+                                                                        You
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                            <span className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
+                                                                <Mail className="size-3 text-muted-foreground/70" />
+                                                                {user.email}
+                                                            </span>
                                                         </div>
-                                                        <span className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
-                                                            <Mail className="size-3 text-muted-foreground/70" />
-                                                            {user.email}
-                                                        </span>
                                                     </div>
-                                                </div>
-                                            </TableCell>
+                                                </TableCell>
 
-                                            {/* Assigned Role */}
-                                            <TableCell>
-                                                {isAdmin ? (
-                                                    <span className="inline-flex items-center gap-1.5 rounded-full bg-purple-50 dark:bg-purple-950/40 px-2.5 py-0.5 text-xs font-semibold text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
-                                                        <ShieldCheck className="size-3.5" />
-                                                        Administrator
+                                                {/* Assigned Role */}
+                                                <TableCell>
+                                                    {isAdmin ? (
+                                                        <span className="inline-flex items-center gap-1.5 rounded-full bg-purple-50 dark:bg-purple-950/40 px-2.5 py-0.5 text-xs font-semibold text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+                                                            <ShieldCheck className="size-3.5" />
+                                                            Administrator
+                                                        </span>
+                                                    ) : isCashier ? (
+                                                        <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950/40 px-2.5 py-0.5 text-xs font-semibold text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
+                                                            <CreditCard className="size-3.5" />
+                                                            Cashier
+                                                        </span>
+                                                    ) : (
+                                                        <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-50 dark:bg-slate-800 px-2.5 py-0.5 text-xs font-semibold text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                                                            <UserIcon className="size-3.5" />
+                                                            {user.role}
+                                                        </span>
+                                                    )}
+                                                </TableCell>
+
+                                                {/* Joined Date */}
+                                                <TableCell>
+                                                    <span className="text-xs text-muted-foreground font-medium">
+                                                        {user.created_at || '—'}
                                                     </span>
-                                                ) : isCashier ? (
-                                                    <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950/40 px-2.5 py-0.5 text-xs font-semibold text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
-                                                        <CreditCard className="size-3.5" />
-                                                        Cashier
-                                                    </span>
-                                                ) : (
-                                                    <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-50 dark:bg-slate-800 px-2.5 py-0.5 text-xs font-semibold text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
-                                                        <UserIcon className="size-3.5" />
-                                                        {user.role}
-                                                    </span>
+                                                </TableCell>
+
+                                                {/* Action Buttons */}
+                                                <TableCell className="text-right pr-6">
+                                                    <UserRowActions user={user} isSelf={isSelf} />
+                                                </TableCell>
+                                            </TableRow>
+                                        );
+                                    })
+                                ) : (
+                                    <TableRow>
+                                        <TableCell colSpan={4} className="h-44 text-center">
+                                            <div className="flex flex-col items-center justify-center gap-2">
+                                                <Users className="size-8 text-muted-foreground/50" />
+                                                <p className="text-sm font-semibold text-foreground">
+                                                    No staff members found
+                                                </p>
+                                                <p className="text-xs text-muted-foreground max-w-sm">
+                                                    {hasActiveFilters
+                                                        ? 'Try adjusting your search criteria or role filters.'
+                                                        : 'Get started by creating your first cashier or administrator account.'}
+                                                </p>
+                                                {hasActiveFilters && (
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        onClick={handleResetFilters}
+                                                        className="mt-2 text-xs"
+                                                    >
+                                                        Clear Filters
+                                                    </Button>
                                                 )}
-                                            </TableCell>
-
-                                            {/* Joined Date */}
-                                            <TableCell>
-                                                <span className="text-xs text-muted-foreground font-medium">
-                                                    {user.created_at || '—'}
-                                                </span>
-                                            </TableCell>
-
-                                            {/* Action Buttons */}
-                                            <TableCell className="text-right pr-6">
-                                                <UserRowActions user={user} isSelf={isSelf} />
-                                            </TableCell>
-                                        </TableRow>
-                                    );
-                                })
-                            ) : (
-                                <TableRow>
-                                    <TableCell colSpan={4} className="h-44 text-center">
-                                        <div className="flex flex-col items-center justify-center gap-2">
-                                            <Users className="size-8 text-muted-foreground/50" />
-                                            <p className="text-sm font-semibold text-foreground">
-                                                No staff members found
-                                            </p>
-                                            <p className="text-xs text-muted-foreground max-w-sm">
-                                                {hasActiveFilters
-                                                    ? 'Try adjusting your search criteria or role filters.'
-                                                    : 'Get started by creating your first cashier or administrator account.'}
-                                            </p>
-                                            {hasActiveFilters && (
-                                                <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    onClick={handleResetFilters}
-                                                    className="mt-2 text-xs"
-                                                >
-                                                    Clear Filters
-                                                </Button>
-                                            )}
-                                        </div>
-                                    </TableCell>
-                                </TableRow>
-                            );
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                );
                             })()}
                         </TableBody>
                     </Table>
@@ -586,11 +585,10 @@ export default function Index({ users, filters, counts }: IndexProps) {
                                 <button
                                     type="button"
                                     onClick={() => setAddData('role', 'cashier')}
-                                    className={`flex flex-col text-left p-3 rounded-xl border transition-all ${
-                                        addData.role === 'cashier'
-                                            ? 'border-indigo-500 bg-indigo-50/50 dark:bg-indigo-950/30 ring-2 ring-indigo-500/20'
-                                            : 'border-border/80 hover:border-border hover:bg-muted/30'
-                                    }`}
+                                    className={`flex flex-col text-left p-3 rounded-xl border transition-all ${addData.role === 'cashier'
+                                        ? 'border-indigo-500 bg-indigo-50/50 dark:bg-indigo-950/30 ring-2 ring-indigo-500/20'
+                                        : 'border-border/80 hover:border-border hover:bg-muted/30'
+                                        }`}
                                 >
                                     <div className="flex items-center justify-between w-full">
                                         <div className="flex items-center gap-2">
@@ -610,11 +608,10 @@ export default function Index({ users, filters, counts }: IndexProps) {
                                 <button
                                     type="button"
                                     onClick={() => setAddData('role', 'admin')}
-                                    className={`flex flex-col text-left p-3 rounded-xl border transition-all ${
-                                        addData.role === 'admin'
-                                            ? 'border-purple-500 bg-purple-50/50 dark:bg-purple-950/30 ring-2 ring-purple-500/20'
-                                            : 'border-border/80 hover:border-border hover:bg-muted/30'
-                                    }`}
+                                    className={`flex flex-col text-left p-3 rounded-xl border transition-all ${addData.role === 'admin'
+                                        ? 'border-purple-500 bg-purple-50/50 dark:bg-purple-950/30 ring-2 ring-purple-500/20'
+                                        : 'border-border/80 hover:border-border hover:bg-muted/30'
+                                        }`}
                                 >
                                     <div className="flex items-center justify-between w-full">
                                         <div className="flex items-center gap-2">
@@ -796,15 +793,15 @@ function UserRowActions({ user, isSelf }: { user: StaffUser; isSelf: boolean }) 
 
     return (
         <div className="flex items-center justify-end gap-1.5">
-            {/* Edit Button */}
+            {/* Edit Button (Icon Only) */}
             <Button
                 size="sm"
                 variant="outline"
                 onClick={openEdit}
-                className="h-8 text-xs font-semibold flex items-center gap-1 hover:border-primary/50 hover:text-primary transition-colors"
+                title="Edit Staff Member"
+                className="h-8 w-8 p-0 flex items-center justify-center hover:border-primary/50 hover:text-primary transition-colors"
             >
                 <Edit className="size-3.5" />
-                <span>Edit</span>
             </Button>
 
             {/* Edit Dialog */}
@@ -912,7 +909,8 @@ function UserRowActions({ user, isSelf }: { user: StaffUser; isSelf: boolean }) 
                         size="sm"
                         variant="ghost"
                         onClick={() => setDeleteOpen(true)}
-                        className="h-8 text-xs text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/40"
+                        title="Delete Staff Account"
+                        className="h-8 w-8 p-0 flex items-center justify-center text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/40"
                     >
                         <Trash2 className="size-3.5" />
                     </Button>

@@ -79,7 +79,7 @@ export default function Edit({
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
-        router.post(route('medicines.update', medicine.id), {
+        router.post(route('medicines.update', medicine.uuid || medicine.id), {
             _method: 'put',
             ...data,
         });
@@ -87,7 +87,7 @@ export default function Edit({
 
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Medicines', href: '/medicines' },
-        { title: `Edit ${medicine.name}`, href: route('medicines.edit', medicine.id) },
+        { title: `Edit ${medicine.name}`, href: route('medicines.edit', medicine.uuid || medicine.id) },
     ];
 
     return (

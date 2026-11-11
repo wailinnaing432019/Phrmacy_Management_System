@@ -63,6 +63,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 type Medicine = {
     id: number;
+    uuid?: string;
     name: string;
     category: string;
     description: string;
@@ -266,7 +267,7 @@ export default function Index({
                                                         </div>
                                                         <div className="space-y-0.5 max-w-[200px]">
                                                             <Link
-                                                                href={route('medicines.show', medicine.id)}
+                                                                href={route('medicines.show', medicine.uuid || medicine.id)}
                                                                 className="font-bold text-sm text-foreground hover:text-primary truncate block transition-colors"
                                                             >
                                                                 {medicine.name}
@@ -372,7 +373,7 @@ export default function Index({
                                                         <TooltipProvider>
                                                             <Tooltip>
                                                                 <TooltipTrigger asChild>
-                                                                    <Link href={route('medicines.edit', medicine.id)}>
+                                                                    <Link href={route('medicines.edit', medicine.uuid || medicine.id)}>
                                                                         <Button
                                                                             size="icon"
                                                                             variant="ghost"
@@ -390,7 +391,7 @@ export default function Index({
                                                         <TooltipProvider>
                                                             <Tooltip>
                                                                 <TooltipTrigger asChild>
-                                                                    <Link href={route('medicines.show', medicine.id)}>
+                                                                    <Link href={route('medicines.show', medicine.uuid || medicine.id)}>
                                                                         <Button
                                                                             size="icon"
                                                                             variant="ghost"

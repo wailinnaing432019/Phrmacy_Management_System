@@ -22,6 +22,7 @@ class MedicineResource extends JsonResource
 
         return [
             'id' => $this->id,
+            'uuid' => $this->uuid,
             'name' => $this->name,
             'description' => $this->description,
             'selling_price' => $this->selling_price,

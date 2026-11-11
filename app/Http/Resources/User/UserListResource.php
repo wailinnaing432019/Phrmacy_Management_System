@@ -22,6 +22,7 @@ class UserListResource extends JsonResource
             'name' => $this->name,
             'email' => $this->email,
             'role' => $this->role,
+            'is_super_admin' => (bool) $this->isSuperAdmin(),
             'created_at' => $this->created_at?->format('M d, Y') ?? '-',
         ];
     }

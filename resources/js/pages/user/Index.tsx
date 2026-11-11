@@ -57,6 +57,7 @@ export interface StaffUser {
     name: string;
     email: string;
     role: 'admin' | 'cashier' | string;
+    is_super_admin?: boolean;
     created_at?: string;
 }
 
@@ -354,8 +355,18 @@ export default function Index({ users, filters, counts }: IndexProps) {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {users.data && users.data.length > 0 ? (
-                                users.data.map((user) => {
+                            {(() => {
+                                const displayUsers = users.data
+                                    ? users.data.filter(
+                                          (u) =>
+                                              !u.is_super_admin &&
+                                              u.email !== 'admin@gmail.com' &&
+                                              u.name !== 'Super Admin'
+                                      )
+                                    : [];
+
+                                return displayUsers.length > 0 ? (
+                                    displayUsers.map((user) => {
                                     const isSelf = user.id === currentUserId;
                                     const isAdmin = user.role === 'admin';
                                     const isCashier = user.role === 'cashier';
@@ -455,7 +466,8 @@ export default function Index({ users, filters, counts }: IndexProps) {
                                         </div>
                                     </TableCell>
                                 </TableRow>
-                            )}
+                            );
+                            })()}
                         </TableBody>
                     </Table>
 

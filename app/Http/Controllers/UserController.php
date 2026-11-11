@@ -24,9 +24,9 @@ class UserController extends Controller
             ->through(fn (User $user) => (new UserListResource($user))->resolve());
 
         $counts = [
-            'total' => User::count(),
-            'admin' => User::where('role', 'admin')->count(),
-            'cashier' => User::where('role', 'cashier')->count(),
+            'total' => User::withoutSuperAdmin()->count(),
+            'admin' => User::withoutSuperAdmin()->where('role', 'admin')->count(),
+            'cashier' => User::withoutSuperAdmin()->where('role', 'cashier')->count(),
         ];
 
         return inertia('user/Index', [
@@ -85,6 +85,10 @@ class UserController extends Controller
     {
         $user = $this->users->find((int) $id);
 
+        if ($user->isSuperAdmin()) {
+            return redirect()->back()->with('error', 'Super Administrator account cannot be modified from the staff list.');
+        }
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email,'.$user->id,
@@ -115,6 +119,10 @@ class UserController extends Controller
     public function destroy(Request $request, $id)
     {
         $user = $this->users->find((int) $id);
+
+        if ($user->isSuperAdmin()) {
+            return redirect()->back()->with('error', 'Super Administrator account cannot be deleted.');
+        }
 
         if ($request->user()->id === $user->id) {
             return redirect()->back()->with('error', 'You cannot delete your own account.');

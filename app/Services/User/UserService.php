@@ -40,6 +40,7 @@ class UserService
             'role' => $data['role'],
             'password' => Hash::make($data['password']),
             'email_verified_at' => now(),
+            'is_super_admin' => false,
         ];
 
         /** @var User $user */

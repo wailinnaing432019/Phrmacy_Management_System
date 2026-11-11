@@ -42,6 +42,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'email',
         'password',
         'role',
+        'is_super_admin',
         'google_id', // Added for Google authentication
         'email_verified_at',
     ];
@@ -66,6 +67,34 @@ class User extends Authenticatable implements MustVerifyEmail
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_super_admin' => 'boolean',
         ];
+    }
+
+    /**
+     * Check if the user is a super administrator.
+     */
+    public function isSuperAdmin(): bool
+    {
+        $superAdminEmail = config('auth.super_admin_email', env('SUPER_ADMIN_EMAIL', 'admin@gmail.com'));
+
+        return (bool) $this->is_super_admin
+            || $this->email === $superAdminEmail
+            || strtolower($this->name) === 'super admin';
+    }
+
+    /**
+     * Scope a query to only include regular staff (excluding super admins).
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeWithoutSuperAdmin($query)
+    {
+        $superAdminEmail = config('auth.super_admin_email', env('SUPER_ADMIN_EMAIL', 'admin@gmail.com'));
+
+        return $query->where('is_super_admin', false)
+            ->where('email', '!=', $superAdminEmail)
+            ->where('name', '!=', 'Super Admin');
     }
 }

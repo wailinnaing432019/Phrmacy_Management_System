@@ -22,6 +22,7 @@ export type Medicine = {
     description: string
     selling_price: string
     qty: number
+    sellable_qty: number
     stock_limit: number
     medicine_barcode: string
     created_at: string
@@ -81,14 +82,19 @@ export const columns = () => {
         },
         {
             accessorKey: "qty",
-            header: "Qty",
+            header: "Stock",
+            cell: ({ row }) => <span>{row.getValue("qty")}</span>,
+        },
+        {
+            accessorKey: "sellable_qty",
+            header: "Sellable",
             cell: ({ row }) => {
-                const qty = row.getValue("qty") as number
+                const sellable = row.getValue("sellable_qty") as number
                 const stockLimit = row.original.stock_limit
                 return (
                     <div>
-                        {qty}
-                        {stockLimit > qty && (
+                        {sellable}
+                        {stockLimit > sellable && (
                             <sup className="bg-red-700 rounded-xl px-1 ml-2 text-white text-xs">
                                 Low Stock
                             </sup>
@@ -185,7 +191,7 @@ export const columns = () => {
 
                                 {/* Edit */}
                                 <DropdownMenuItem
-                                    onClick={() => router.visit(route("medicines.edit", medicine.id))}
+                                    onClick={() => router.visit(route("medicines.edit", medicine.uuid || medicine.id))}
                                 >
                                     <Pencil className="mr-2 h-4 w-4" />
                                     Edit
@@ -193,7 +199,7 @@ export const columns = () => {
 
                                 {/* View */}
                                 <DropdownMenuItem
-                                    onClick={() => router.visit(route("medicines.show", medicine.id))}
+                                    onClick={() => router.visit(route("medicines.show", medicine.uuid || medicine.id))}
                                 >
                                     <Eye className="mr-2 h-4 w-4" />
                                     View

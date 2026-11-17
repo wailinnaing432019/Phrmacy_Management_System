@@ -2,23 +2,32 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Medicine;
+use App\Http\Resources\Medicine\MedicineOptionResource;
+use App\Http\Resources\MedicineSupplier\MedicineSupplierLinkResource;
+use App\Http\Resources\MedicineSupplier\MedicineSupplierResource;
+use App\Http\Resources\Supplier\SupplierOptionResource;
 use App\Models\MedicineSupplier;
-use App\Models\Supplier;
+use App\Services\Medicine\MedicineService;
+use App\Services\MedicineSupplier\MedicineSupplierService;
+use App\Services\Supplier\SupplierService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class MedicineSupplierController extends Controller
 {
+    public function __construct(
+        private readonly MedicineSupplierService $medicineSuppliers,
+        private readonly MedicineService $medicines,
+        private readonly SupplierService $suppliers,
+    ) {}
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $medicineSuppliers = MedicineSupplier::with('medicine', 'supplier')->get();
-
         return Inertia::render('medicine-supply/Index', [
-            'medicineSuppliers' => $medicineSuppliers
+            'medicineSuppliers' => MedicineSupplierResource::collection($this->medicineSuppliers->list())->resolve(),
         ]);
     }
 
@@ -27,9 +36,9 @@ class MedicineSupplierController extends Controller
      */
     public function create()
     {
-        return inertia('medicine-supply/Create', [
-            'medicines' => Medicine::select('id', 'name')->get(),
-            'suppliers' => Supplier::select('id', 'name')->get(),
+        return Inertia::render('medicine-supply/Create', [
+            'medicines' => MedicineOptionResource::collection($this->medicines->options())->resolve(),
+            'suppliers' => SupplierOptionResource::collection($this->suppliers->options())->resolve(),
         ]);
     }
 
@@ -37,37 +46,18 @@ class MedicineSupplierController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-{
-    $validated = $request->validate([
-        'medicine_id' => 'required|exists:medicines,id',
-        'supplier_id' => 'required|exists:suppliers,id',
-        'supplier_price' => 'required|numeric|min:0',
-        'is_preferred' => 'required|boolean',
-    ]);
+    {
+        $validated = $request->validate([
+            'medicine_id' => 'required|exists:medicines,id',
+            'supplier_id' => 'required|exists:suppliers,id',
+            'supplier_price' => 'required|numeric|min:0',
+            'is_preferred' => 'required|boolean',
+        ]);
 
-    // Check if this link already exists
-    $existing = MedicineSupplier::where('medicine_id', $validated['medicine_id'])
-        ->where('supplier_id', $validated['supplier_id'])
-        ->first();
+        $this->medicineSuppliers->link($validated);
 
-    // If preferred, unset preferred from others
-    if ($validated['is_preferred']) {
-        MedicineSupplier::where('medicine_id', $validated['medicine_id'])
-            ->where('supplier_id', '!=', $validated['supplier_id'])
-            ->update(['is_preferred' => false]);
+        return redirect()->route('medicine-supply.index')->with('success', 'Supplier linked successfully.');
     }
-
-    if ($existing) {
-        // Update existing record
-        $existing->update($validated);
-    } else {
-        // Create new record
-        MedicineSupplier::create($validated);
-    }
-
-    return redirect()->route('medicine-supply.index')->with('success', 'Supplier linked successfully.');
-}
-
 
     /**
      * Display the specified resource.
@@ -82,50 +72,40 @@ class MedicineSupplierController extends Controller
      */
     public function edit(string $id)
     {
-        $link = MedicineSupplier::findOrFail($id);
- $existingLinks = MedicineSupplier::select('id', 'medicine_id', 'supplier_id')->get();
-return Inertia::render('medicine-supply/Edit', [
-    'link' => $link,
-    'medicines' => Medicine::all(['id', 'name']),
-    'suppliers' => Supplier::all(['id', 'name']),
-    'existingLinks' => $existingLinks,
-]);
+        $link = $this->medicineSuppliers->find((int) $id);
+
+        return Inertia::render('medicine-supply/Edit', [
+            'link' => (new MedicineSupplierResource($link))->resolve(),
+            'medicines' => MedicineOptionResource::collection($this->medicines->options())->resolve(),
+            'suppliers' => SupplierOptionResource::collection($this->suppliers->options())->resolve(),
+            'existingLinks' => MedicineSupplierLinkResource::collection($this->medicineSuppliers->existingLinks())->resolve(),
+        ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-public function update(Request $request, MedicineSupplier $medicine_supply)
-{
-    $validated = $request->validate([
-        'medicine_id' => 'required|exists:medicines,id',
-        'supplier_id' => 'required|exists:suppliers,id',
-        'supplier_price' => 'required|numeric|min:0',
-        'is_preferred' => 'required|boolean',
-    ]);
+    public function update(Request $request, MedicineSupplier $medicine_supply)
+    {
+        $validated = $request->validate([
+            'medicine_id' => 'required|exists:medicines,id',
+            'supplier_id' => 'required|exists:suppliers,id',
+            'supplier_price' => 'required|numeric|min:0',
+            'is_preferred' => 'required|boolean',
+        ]);
 
-    if ($validated['is_preferred']) {
-        MedicineSupplier::where('medicine_id', $validated['medicine_id'])
-            ->where('id', '!=', $medicine_supply->id)
-            ->update(['is_preferred' => false]);
+        $this->medicineSuppliers->update($medicine_supply, $validated);
+
+        return redirect()->route('medicine-supply.index')->with('success', 'Supplier updated successfully.');
     }
-
-    $medicine_supply->update($validated);
-
-    return redirect()->route('medicine-supply.index')->with('success', 'Supplier updated successfully.');
-}
-
-
-
-
 
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(string $id)
     {
-         $link = MedicineSupplier::findOrFail($id);
-        $link->delete();
+        $link = $this->medicineSuppliers->find((int) $id);
+        $this->medicineSuppliers->delete($link);
 
         return redirect()->route('medicine-supply.index')
             ->with('success', 'Link deleted successfully.');

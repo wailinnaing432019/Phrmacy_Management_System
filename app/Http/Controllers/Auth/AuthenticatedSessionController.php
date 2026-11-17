@@ -14,61 +14,39 @@ use Inertia\Response;
 class AuthenticatedSessionController extends Controller
 {
     /**
-     * Show the login page.
+     * Show the staff login page.
      */
     public function create(Request $request): Response
     {
-        return Inertia::render('customers/LoginForm', [
+        return Inertia::render('auth/login', [
             'canResetPassword' => Route::has('password.request'),
             'status' => $request->session()->get('status'),
         ]);
-        // return Inertia::render('auth/login', [
-        //     'canResetPassword' => Route::has('password.request'),
-        //     'status' => $request->session()->get('status'),
-        // ]);
     }
 
     /**
-     * Handle an incoming authentication request.
+     * Handle an incoming staff authentication request.
      */
     public function store(LoginRequest $request): RedirectResponse
     {
-         $request->session()->forget('url.intended');
+        $request->session()->forget('url.intended');
         $request->authenticate();
 
         $request->session()->regenerate();
 
-        $role = Auth::user()->role;
-
-      if ($role === 'admin') {
-    return redirect()->route('dashboard');
-} elseif ($role === 'cashier') {
-    return redirect()->route('cashier.pos');
-} else {
-    return redirect()->route('customer.index'); // fallback
-}
-        // return redirect()->intended(route('dashboard', absolute: false));
+        return redirect()->route($request->user()->homeRouteName());
     }
 
     /**
-     * Destroy an authenticated session.
+     * Destroy an authenticated staff session.
      */
     public function destroy(Request $request): RedirectResponse
     {
-         $role = Auth::user()->role;
-
-
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        if ($role === 'admin') {
-            return redirect()->intended('/');
-        } elseif ($role === 'cashier') {
-            return redirect()->intended('/');
-        } else {
-            return redirect()->intended('/customers'); // fallback
-        } 
+        return redirect('/');
     }
 }

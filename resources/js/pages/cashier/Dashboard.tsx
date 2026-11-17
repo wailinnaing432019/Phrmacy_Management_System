@@ -49,10 +49,10 @@ const Dashboard: React.FC<DashboardProps> = ({
     medicine_alerts,
 }) => {
     return (
-        <div className="min-h-screen bg-gray-100">
-            <Head title="POS" />
+        <div className="min-h-screen bg-background text-foreground flex flex-col">
+            <Head title="Cashier Dashboard" />
             <CashierMenu />
-            <div className="flex h-full flex-1 flex-col gap-6 rounded-xl p-6  overflow-auto">
+            <div className="flex h-full flex-1 flex-col gap-6 p-4 sm:p-6 overflow-auto">
                 {/* Summary Cards */}
 
 
@@ -73,7 +73,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                                         itemStyle={{ color: '#666' }}
                                         formatter={(value: number) => `${value} MMK`}
                                     />
-                                    <Line type="monotone" dataKey="total" stroke="#8884d8" activeDot={{ r: 8 }} strokeWidth={2} name="Daily Sales" />
+                                    <Line type="monotone" dataKey="total" stroke="#0d9488" activeDot={{ r: 8 }} strokeWidth={2.5} name="Daily Sales" />
                                 </LineChart>
                             </ResponsiveContainer>
                         ) : (
@@ -90,8 +90,8 @@ const Dashboard: React.FC<DashboardProps> = ({
                             <ResponsiveContainer width="100%" height="90%">
                                 <BarChart data={top_medicines} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                                     <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
-                                    <XAxis dataKey="name" tick={{ fill: '#990efc' }} />
-                                    <YAxis tick={{ fill: '#990efc' }} />
+                                    <XAxis dataKey="name" tick={{ fill: '#0d9488' }} />
+                                    <YAxis tick={{ fill: '#0d9488' }} />
                                     <Tooltip
                                         contentStyle={{ borderRadius: '0.5rem', border: 'none', boxShadow: '0 2px 10px rgba(0,0,0,0.1)' }}
                                         labelStyle={{ color: '#333', fontWeight: 'bold' }}
@@ -99,7 +99,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                                         formatter={(value: number) => `${value} MMK`}
                                     />
                                     <Legend wrapperStyle={{ paddingTop: '10px' }} />
-                                    <Bar dataKey="sales" fill="#990efc" name="Sales" radius={[5, 5, 0, 0]} />
+                                    <Bar dataKey="sales" fill="#0284c7" name="Sales" radius={[5, 5, 0, 0]} />
                                 </BarChart>
                             </ResponsiveContainer>
                         ) : (

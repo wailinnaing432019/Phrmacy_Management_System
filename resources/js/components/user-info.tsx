@@ -4,19 +4,29 @@ import { type User } from '@/types';
 
 export function UserInfo({ user, showEmail = false }: { user: User; showEmail?: boolean }) {
     const getInitials = useInitials();
+    const role = (user as any)?.role || 'staff';
 
     return (
-        <>
-            <Avatar className="h-8 w-8 overflow-hidden rounded-full">
+        <div className="flex items-center gap-2.5 overflow-hidden">
+            <Avatar className="h-8 w-8 shrink-0 overflow-hidden rounded-lg border border-border">
                 <AvatarImage src={user.avatar} alt={user.name} />
-                <AvatarFallback className="rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white">
+                <AvatarFallback className="rounded-lg bg-gradient-to-br from-purple-600 to-indigo-700 font-semibold text-white text-xs">
                     {getInitials(user.name)}
                 </AvatarFallback>
             </Avatar>
-            <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{user.name}</span>
-                {showEmail && <span className="truncate text-xs text-muted-foreground">{user.email}</span>}
+            <div className="grid flex-1 text-left text-xs leading-tight">
+                <div className="flex items-center gap-1.5">
+                    <span className="truncate font-semibold text-foreground text-sm">{user.name}</span>
+                    <span className="rounded bg-primary/10 px-1 py-0.2 text-[9px] font-bold uppercase tracking-wider text-primary">
+                        {role}
+                    </span>
+                </div>
+                {showEmail ? (
+                    <span className="truncate text-xs text-muted-foreground">{user.email}</span>
+                ) : (
+                    <span className="truncate text-[11px] text-muted-foreground">{user.email}</span>
+                )}
             </div>
-        </>
+        </div>
     );
 }

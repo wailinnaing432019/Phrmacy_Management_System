@@ -98,7 +98,7 @@ Thanks,<br>
         <h2>Medical Supply Store</h2>
         <div class="shop-info">
             No.123, Main Road, Yangon, Myanmar <br>
-            Phone: +95 9 123456789 | Email: support@medstore.com
+            Phone: +95 9 123456789 | Email: {{ config('mail.contact_address') }}
         </div>
     </div>
 

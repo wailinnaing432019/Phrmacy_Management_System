@@ -4,7 +4,6 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -15,11 +14,20 @@ class RoleMiddleware
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next,...$roles) 
+    public function handle(Request $request, Closure $next, ...$roles)
     {
-        if(!Auth::check() || !in_array(Auth::user()->role,$roles)){
-            return Inertia::render('error/403Forbidden');
+        $user = $request->user();
+
+        if (! $user || ! in_array($user->role, $roles, true)) {
+            if ($request->expectsJson()) {
+                abort(403, 'You do not have permission to access this page.');
+            }
+
+            return Inertia::render('error/403Forbidden')
+                ->toResponse($request)
+                ->setStatusCode(Response::HTTP_FORBIDDEN);
         }
-        return $next($request); 
+
+        return $next($request);
     }
 }

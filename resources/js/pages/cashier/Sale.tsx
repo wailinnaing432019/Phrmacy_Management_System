@@ -48,10 +48,10 @@ export default function Index({ sales, filters }: { Sale: SalePagination[] }) {
     };
 
     return (
-        <div className="min-h-screen bg-gray-100">
-            <Head title="POS" />
+        <div className="min-h-screen bg-background text-foreground flex flex-col">
+            <Head title="Sale Records" />
             <CashierMenu />
-            <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4 overflow-x-auto">
+            <div className="flex h-full flex-1 flex-col gap-4 p-4 sm:p-6 overflow-x-auto">
                 <div className="container mx-auto py-10">
                     {/* <FilterBar
                         currentMonth={filters?.month}

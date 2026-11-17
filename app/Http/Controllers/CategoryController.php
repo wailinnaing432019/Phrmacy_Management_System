@@ -3,19 +3,26 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CategoryRequest;
+use App\Http\Resources\Category\CategoryResource;
 use App\Models\Category;
-use Illuminate\Http\Request;
+use App\Services\Category\CategoryService;
+use Illuminate\Database\QueryException;
 use Inertia\Inertia;
 
 class CategoryController extends Controller
 {
+    public function __construct(
+        private readonly CategoryService $categories,
+    ) {}
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $categories=Category::all();
-        return Inertia::render('category/Index',compact('categories'));
+        return Inertia::render('category/Index', [
+            'categories' => CategoryResource::collection($this->categories->list())->resolve(),
+        ]);
     }
 
     /**
@@ -31,9 +38,9 @@ class CategoryController extends Controller
      */
     public function store(CategoryRequest $request)
     {
-        $validated=$request->validated();
-        Category::create($validated);
-        return to_route('categories.index')->with('success',"Category added successfully");
+        $this->categories->create($request->validated());
+
+        return to_route('categories.index')->with('success', 'Category added successfully');
     }
 
     /**
@@ -55,35 +62,29 @@ class CategoryController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(CategoryRequest $request, string $category)
+    public function update(CategoryRequest $request, Category $category)
     {
-         $validated = $request->validated();
-    $category = Category::findOrFail($category);
+        $this->categories->update($category, $request->validated());
 
-    $category->name = $validated['name'];
-    $category->description = $validated['description'];
-    $category->trending = $validated['trending'];  
-
-    $category->save();
-
-    return to_route('categories.index')
-        ->with('message', "Category updated successfully");    }
+        return to_route('categories.index')
+            ->with('message', 'Category updated successfully');
+    }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $category)
+    public function destroy(Category $category)
     {
         try {
-        $category = Category::findOrFail($category);
-        $category->delete();
+            $this->categories->delete($category);
 
-        return back()->with('success', 'Category deleted successfully!');
-    } catch (\Illuminate\Database\QueryException $e) {
-        if ($e->getCode() == '23000') {
-            return back()->with('error', 'Cannot delete this category because it has related medicines or orders.');
+            return back()->with('success', 'Category deleted successfully!');
+        } catch (QueryException $e) {
+            if ($e->getCode() == '23000') {
+                return back()->with('error', 'Cannot delete this category because it has related medicines or orders.');
+            }
+
+            return back()->with('error', 'Something went wrong.');
         }
-        return back()->with('error', 'Something went wrong.');
-    }
     }
 }

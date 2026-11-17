@@ -25,16 +25,17 @@
 
 ## Overview
 
-MediStock is a complete pharmacy / medical supply management system. It combines a back-office admin panel (inventory, purchasing, sales, orders, users), a cashier point-of-sale terminal, and a public customer storefront with online ordering. Inventory is tracked using expiry-aware FIFO batch deduction, automatic Code-128 barcodes, and printable barcode labels. Analytics dashboards give staff real-time visibility into sales, purchases, revenue, and stock alerts.
+MediStock is a complete pharmacy / medical supply management system. It combines a back-office admin panel (inventory, purchasing, sales, orders, users), a cashier point-of-sale terminal, and a public customer storefront with online ordering. Inventory is tracked using expiry-aware FEFO batch deduction, automatic Code-128 barcodes, and printable barcode labels. Analytics dashboards give staff real-time visibility into sales, purchases, revenue, and stock alerts.
 
 ## Key Features
 
 - **Admin analytics dashboard** — KPI cards (Sales Today, Purchases Today, Total Revenue, Total Cost), daily sales line chart, Top 5 Medicines bar chart, and an alerts table.
 - **Medicine inventory management** — full CRUD, categories, suppliers, and restocking via purchase batches with manufacture/expiry dates.
 - **Auto-generated Code-128 barcodes** — per-medicine barcode plus a `/barcode/{code}` PNG route and printable PDF barcode labels.
-- **FIFO inventory with expiry awareness** — batch deduction via `purchased_items` (skips expired batches) and FIFO stock restoration on order cancellation.
+- **FEFO inventory with expiry awareness** — first-expiry-first-out batch deduction from `purchased_items` (expired batches are never sold), an append-only `stock_movements` ledger, and exact batch-level restoration on cancellation or refund. Storefront listings, product pages, and POS lookups only expose non-expired sellable stock.
 - **Medicine alerts** — Low Stock, Expired, and Near Expiry (within 30 days) notifications.
-- **Shop sales & online orders** — manage shop sales (CSV/PDF export, shop vs online filter) and online orders with status updates (pending/completed/cancelled) that adjust stock and email invoices.
+- **Shop sales & online orders** — manage shop sales (CSV/PDF export, shop vs online filter) and online orders. Checkout reserves stock for 24 hours (configurable); completion keeps the hold, while cancellation or expiry restores the exact batches and sends invoices.
+- **Returns & refunds** — partial, per-line returns on shop sales; restock into the exact original batch by default (opt out for damaged goods); server-priced refunds; printable credit notes; and `RET-YYYY-NNNNNN` numbering.
 - **Cashier POS** — camera/QR barcode scanner + manual entry, cart, received/refund amounts, and invoice generation.
 - **Customer storefront** — product browsing with search, category filter, and sorting (price low-high/high-low, top-selling, new-arrivals), product detail, cart (localStorage), and checkout.
 - **Payments & invoices** — PDF invoices (DomPDF), Maatwebsite/Excel CSV/PDF export, and invoice emails via Laravel Mail.
@@ -45,7 +46,7 @@ MediStock is a complete pharmacy / medical supply management system. It combines
 | Layer | Technology |
 | --- | --- |
 | Backend | Laravel 12, PHP ^8.2 |
-| Database | SQLite (default), Eloquent ORM |
+| Database | MySQL 8 (utf8mb4), Eloquent ORM |
 | Frontend | Inertia.js v2 + React 19 + TypeScript + Vite |
 | Styling | Tailwind CSS v4 + shadcn/ui (Radix UI) + lucide-react |
 | Charts | Recharts |
@@ -55,14 +56,17 @@ MediStock is a complete pharmacy / medical supply management system. It combines
 | Auth | Laravel Breeze + Laravel Socialite (Google OAuth) + custom `RoleMiddleware` |
 | Utilities | Ziggy, framer-motion, sonner, react-qr-barcode-scanner, Mail |
 
+> Backend layout (controllers → services → repositories → resources) is documented in
+> [`docs/architecture.md`](docs/architecture.md).
+
 ## Roles & Access Control
 
 The `users.role` column controls access via a custom `RoleMiddleware` (`admin` | `cashier` | `user`).
 
 | Role | Capabilities |
 | --- | --- |
-| **Admin** | Dashboard analytics; Medicines CRUD + restock (purchase batches with mfd/exp dates); Categories, Suppliers, Medicine-Supplier preferred-supplier links; Shop Sales list/show with CSV/PDF export (shop vs online source filter); Online Orders management with status updates (pending/completed/cancelled) that deduct/restore stock FIFO and email invoices; Users management; Invoice preview/download PDF; Print barcode PDF labels. |
-| **Cashier** | Cashier POS (camera/QR barcode scanner + manual code, cart, received/refund amount, complete sale → opens invoice); Cashier dashboard (same analytics); Sales list + sale detail/invoice. |
+| **Admin** | Dashboard analytics; Medicines CRUD + restock (purchase batches with mfd/exp dates); Categories, Suppliers, Medicine-Supplier preferred-supplier links; Shop Sales list/show with CSV/PDF export (shop vs online source filter); Online Orders management with status updates (pending/completed/cancelled) that reserve, keep, or restore stock and email invoices; Shop-sale returns/refunds with credit notes; Users management; Invoice preview/download PDF; Print barcode PDF labels. |
+| **Cashier** | Cashier POS (camera/QR barcode scanner + manual code, cart, received/refund amount, complete sale → opens invoice); Cashier dashboard (same analytics); Sales list + own sale detail/invoice; Shop-sale returns/refunds. |
 | **Customer** | Public storefront home/products (search, category filter, sort: price low-high/high-low/top-selling/new-arrivals); product detail; cart (localStorage) + checkout (name/email/phone/address/payment method/transaction id); My Orders; login/register (incl. Google OAuth); contact form. |
 
 ## Screenshots
@@ -82,7 +86,7 @@ The add/restock medicine form collects name, category, description, selling and 
 The sales screen lists shop and online transactions with invoice numbers, cashier names, totals, and dates. It supports shop/online source filtering, month/year and date ranges, and CSV/PDF export. Clicking a row opens a detailed invoice view.
 
 ![Online Orders](screenshots/orders.png)
-The online order management screen lets staff search and filter orders, update statuses (pending, completed, cancelled) which adjusts stock FIFO and sends invoice emails, and preview/download invoice PDFs.
+The online order management screen lets staff search and filter orders, update statuses (pending, completed, cancelled), see reservation hold expiry, and preview/download invoice PDFs. Checkout reserves stock immediately; cancellation or reservation expiry returns it to the exact batches.
 
 ### Cashier
 
@@ -132,14 +136,18 @@ medical-supply-store/
 | `suppliers` | Medicine suppliers. |
 | `medicines` | Medicines: name, category_id, price, qty, stock_limit, status, image, medicine_barcode. |
 | `purchased_items` | Purchase batches: medicine_id, qty, sold_qty, unit_price, mfd_date, exp_date. |
-| `sales` | Shop sales: invoice_no, sale_by, total, received, refund. |
-| `sale_items` | Items within a shop sale. |
-| `orders` | Online orders: user_id, order_no, total, status, contact fields, payment_method, transaction_id. |
+| `sales` | Shop sales: invoice_no, sale_by, total, refunded_total, received, refund. |
+| `sale_items` | Items within a shop sale, linked to the batch they came from; tracks `returned_qty`. |
+| `orders` | Online orders: user_id, order_no, total, status, reservation hold fields (`reserved_at`, `reservation_expires_at`, `cancelled_at`, `cancellation_reason`), contact fields, payment_method, transaction_id. |
 | `order_items` | Items within an online order. |
-| `order_item_stocks` | FIFO restoration tracking for cancelled/returned orders. |
+| `order_item_stocks` | Batch allocations held by pending/completed orders, used to restore the exact batches on cancellation or expiry. |
+| `sale_returns` | Shop-sale returns: return_no, sale_id, processed_by, total, refund_method, reason. |
+| `sale_return_items` | Returned lines: original sale_item, batch, quantity, refund, and whether it was restocked. |
+| `stock_movements` | Append-only ledger of every stock change (purchase, sale, order, cancellation, return, adjustment) with balance after. |
+| `sequences` | Per-year counters for invoice (`INV-YYYY-NNNNNN`), order (`ORD-YYYY-NNNNNN`), and return (`RET-YYYY-NNNNNN`) numbers. |
 | `medicine_supplier` | Preferred-supplier links between medicines and suppliers. |
 
-**FIFO / batch note:** Inventory is deducted using first-in-first-out batch logic from `purchased_items`. Expired batches (by `exp_date`) are skipped during deduction. Cancelling or reversing an order restores stock FIFO via `order_item_stocks`.
+**FEFO / batch note:** Inventory is deducted from the earliest-expiring non-expired batch. Prices are always read from the database, never from the request. `medicines.qty` is the physical cached aggregate recomputed from `purchased_items` inside the same transaction that writes the movement. Storefront pages, POS lookups, and medicine listings expose a computed **sellable** quantity that only counts non-expired batches; the admin medicine list shows both physical and sellable stock. Expired batches (by `exp_date`) are never sold. Online checkout reserves stock immediately and records the batch allocations in `order_item_stocks`; cancelling an order restores those exact batches, while the scheduler releases expired holds and marks the order cancelled. Returns restore the exact batch recorded on the original sale line, and refunds use the price recorded on that line.
 
 ## Installation & Setup
 
@@ -156,8 +164,9 @@ npm install
 # 4. Generate application key
 php artisan key:generate
 
-# 5. Run migrations (database/database.sqlite already exists;
-#    if not, run: touch database/database.sqlite)
+# 5. Create the database and run migrations
+#    (MySQL is required in production; SQLite is not supported for multi-till use)
+mysql -u root -e "CREATE DATABASE IF NOT EXISTS pharmacy_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 php artisan migrate
 
 # 6. Link storage for medicine images
@@ -175,19 +184,23 @@ php artisan serve
 npm run dev
 ```
 
-Create users and set their `role` column (`admin` / `cashier` / `user`) via Tinker or a seeder:
+Create the first administrator account. No default credentials are shipped:
 
 ```bash
-php artisan tinker
-# Only DatabaseSeeder.php exists by default, so assign roles manually.
+php artisan app:create-admin
 ```
+
+Additional staff accounts can be created by an admin from the Users screen, or
+via Tinker by setting `users.role` to `admin`, `cashier`, or `user`.
 
 ## Configuration
 
 Key `.env` settings:
 
-- `DB_CONNECTION=sqlite` — the application uses SQLite by default.
+- `DB_CONNECTION=mysql` — MySQL 8 is required. SQLite is not supported for multi-till use.
 - `MAIL_MAILER=log` — emails (invoices, etc.) are logged by default; configure a real mailer to send.
+- `MAIL_CONTACT_ADDRESS` — where storefront contact-form messages are delivered (defaults to `MAIL_FROM_ADDRESS`).
+- `ORDER_RESERVATION_HOURS` — how long a pending online order holds stock before auto-cancelling (default `24`).
 - **Optional Google OAuth** — add the following to enable Socialite login:
   ```
   GOOGLE_CLIENT_ID=your-client-id
@@ -195,9 +208,34 @@ Key `.env` settings:
   GOOGLE_REDIRECT_URI=your-redirect-uri
   ```
 
-## Testing
+### Security notes
+
+- Barcode images (`/barcode/{code}`) require a verified admin or cashier session, accept only 1–64 safe characters, and are rate limited.
+- Login, registration, password reset, storefront checkout, contact form, and POS barcode lookups are rate limited.
+- Sale list sorting is whitelisted (never raw request columns), and cashiers can open only their own sale details and invoices.
+- In production, set a real `MAIL_MAILER`/SMTP credentials because email verification is enforced, and change the seeded local admin password before the pilot.
+
+### Scheduler
+
+Pending online orders hold stock for `ORDER_RESERVATION_HOURS` (default 24). The scheduled command cancels expired holds and restores their batches:
 
 ```bash
+php artisan orders:release-expired     # run manually
+php artisan schedule:work              # local development
+```
+
+On the VPS, add one cron entry:
+
+```bash
+* * * * * cd /path/to/pharmacy-app && php artisan schedule:run >> /dev/null 2>&1
+```
+
+## Testing
+
+Tests run against a real MySQL database named `pharmacy_test` (created once):
+
+```bash
+mysql -u root -e "CREATE DATABASE IF NOT EXISTS pharmacy_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 composer test        # Runs the Pest test suite
 ./vendor/bin/pint    # Formats the codebase
 ```

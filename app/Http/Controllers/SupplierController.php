@@ -3,19 +3,25 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\SupplierRequest;
+use App\Http\Resources\Supplier\SupplierResource;
 use App\Models\Supplier;
-use Illuminate\Http\Request;
+use App\Services\Supplier\SupplierService;
 use Inertia\Inertia;
 
 class SupplierController extends Controller
 {
+    public function __construct(
+        private readonly SupplierService $suppliers,
+    ) {}
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $suppliers=Supplier::all();
-        return Inertia::render('supplier/Index',compact('suppliers'));
+        return Inertia::render('supplier/Index', [
+            'suppliers' => SupplierResource::collection($this->suppliers->list())->resolve(),
+        ]);
     }
 
     /**
@@ -31,10 +37,9 @@ class SupplierController extends Controller
      */
     public function store(SupplierRequest $request)
     {
-         
-        $validated=$request->validated(); 
-        Supplier::create($validated);
-        return to_route('suppliers.index')->with('success',"Supplier added successfully");
+        $this->suppliers->create($request->validated());
+
+        return to_route('suppliers.index')->with('success', 'Supplier added successfully');
     }
 
     /**
@@ -56,17 +61,11 @@ class SupplierController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(SupplierRequest $request, string $supplier)
+    public function update(SupplierRequest $request, Supplier $supplier)
     {
-        $validated=$request->validated();
-        $supplier=Supplier::find($supplier);
-        $supplier->name=$validated['name'];
-        $supplier->email=$validated['email'];
-        $supplier->phone=$validated['phone'];
-        $supplier->address=$validated['address'];
+        $this->suppliers->update($supplier, $request->validated());
 
-         $supplier->save();
-        return to_route('suppliers.index')->with('message', "Supplier Update Successfully");
+        return to_route('suppliers.index')->with('message', 'Supplier Update Successfully');
     }
 
     /**
@@ -74,7 +73,9 @@ class SupplierController extends Controller
      */
     public function destroy(Supplier $supplier)
     {
-        Supplier::destroy($supplier->id);
-        return to_route('suppliers.index')->with('error',"Supplier ". $supplier->name ." deleted successfully");
+        $this->suppliers->delete($supplier);
+
+        return to_route('suppliers.index')
+            ->with('error', 'Supplier '.$supplier->name.' deleted successfully');
     }
 }

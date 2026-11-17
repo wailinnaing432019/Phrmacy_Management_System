@@ -2,15 +2,19 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasActivityLog;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Supplier extends Model
 {
-    protected $fillable=[
+    use HasActivityLog, SoftDeletes;
+
+    protected $fillable = [
         'name',
         'email',
         'phone',
-        'address'
+        'address',
     ];
     //
     //     public function medicines()
@@ -19,7 +23,7 @@ class Supplier extends Model
     // }
 
     public function medicineSuppliers()
-{
-    return $this->hasMany(MedicineSupplier::class);
-}
+    {
+        return $this->hasMany(MedicineSupplier::class);
+    }
 }

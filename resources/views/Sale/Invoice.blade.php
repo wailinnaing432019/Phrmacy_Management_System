@@ -4,6 +4,18 @@
 <head>
     <title>Invoice - HelixPharma</title>
     <style>
+        @media print {
+            @page {
+                size: 80mm auto;
+                margin: 0;
+            }
+            body {
+                width: 76mm !important;
+                margin: 0 auto !important;
+                padding: 4mm 2mm !important;
+            }
+        }
+
         body {
             font-family: monospace;
             font-size: 11px;

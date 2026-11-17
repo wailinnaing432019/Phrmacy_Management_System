@@ -18,6 +18,18 @@ class Category extends Model
         'trending',
     ];
 
+    /**
+     * Bootstrap the model and its traits.
+     */
+    protected static function booted(): void
+    {
+        static::saving(function (Category $category) {
+            if ($category->description === null) {
+                $category->description = '';
+            }
+        });
+    }
+
     public function medicines(): HasMany
     {
         return $this->hasMany(Medicine::class);

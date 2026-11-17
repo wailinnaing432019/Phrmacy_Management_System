@@ -38,7 +38,11 @@ class CategoryController extends Controller
      */
     public function store(CategoryRequest $request)
     {
-        $this->categories->create($request->validated());
+        $data = $request->validated();
+        $data['description'] = $data['description'] ?? '';
+        $data['trending'] = (bool) ($data['trending'] ?? false);
+
+        $this->categories->create($data);
 
         return to_route('categories.index')->with('success', 'Category added successfully');
     }
@@ -64,10 +68,14 @@ class CategoryController extends Controller
      */
     public function update(CategoryRequest $request, Category $category)
     {
-        $this->categories->update($category, $request->validated());
+        $data = $request->validated();
+        $data['description'] = $data['description'] ?? '';
+        $data['trending'] = (bool) ($data['trending'] ?? false);
+
+        $this->categories->update($category, $data);
 
         return to_route('categories.index')
-            ->with('message', 'Category updated successfully');
+            ->with('success', 'Category updated successfully');
     }
 
     /**

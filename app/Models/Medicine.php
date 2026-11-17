@@ -38,6 +38,12 @@ class Medicine extends Model
                 $medicine->uuid = (string) Str::uuid();
             }
         });
+
+        static::saving(function (Medicine $medicine) {
+            if ($medicine->description === null) {
+                $medicine->description = '';
+            }
+        });
     }
 
     /**

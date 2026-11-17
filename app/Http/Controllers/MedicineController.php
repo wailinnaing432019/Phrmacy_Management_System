@@ -90,7 +90,7 @@ class MedicineController extends Controller
                 Rule::unique('medicines', 'name')->whereNull('deleted_at'),
             ],
             'category_id' => 'required|exists:categories,id',
-            'description' => 'required|string',
+            'description' => 'nullable|string',
             'selling_price' => 'required|numeric|min:0',
             'qty' => 'required|integer|min:1',
             'stock_limit' => 'required|integer|min:0|lt:qty',
@@ -104,6 +104,7 @@ class MedicineController extends Controller
         ]);
 
         try {
+            $validated['description'] = $validated['description'] ?? '';
             $medicine = $this->medicines->create($validated, $request->file('image'));
 
             return to_route('medicines.index')
@@ -166,6 +167,7 @@ class MedicineController extends Controller
         ]);
 
         try {
+            $validated['description'] = $validated['description'] ?? '';
             $this->medicines->update($medicine, $validated, $request->file('image'));
 
             return to_route('medicines.index')->with('success', 'Medicine updated.');

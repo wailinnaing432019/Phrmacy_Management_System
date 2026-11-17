@@ -26,23 +26,7 @@ export function AppSidebarHeader({ breadcrumbs = [] }: { breadcrumbs?: Breadcrum
                     <span>System Online</span>
                 </div>
 
-                {/* Quick Link: Customer Storefront */}
-                <a
-                    href="/customers"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    title="Open Customer Storefront in new tab"
-                >
-                    <Button
-                        size="sm"
-                        variant="outline"
-                        className="h-8 gap-1.5 text-xs text-muted-foreground hover:text-foreground"
-                    >
-                        <Store className="size-3.5" />
-                        <span className="hidden md:inline">Storefront</span>
-                        <ExternalLink className="size-3 opacity-60" />
-                    </Button>
-                </a>
+
 
                 <div className="h-4 w-px bg-border" />
 

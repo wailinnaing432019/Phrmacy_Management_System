@@ -121,3 +121,4 @@ export default function ErrorPage({ status = 500, message }: ErrorProps) {
         </div>
     );
 }
+
